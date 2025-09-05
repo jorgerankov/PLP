@@ -76,7 +76,7 @@ agregar x (Histograma l u ls)
 
 -- | Arma un histograma a partir de una lista de números reales con la cantidad de casilleros y rango indicados.
 histograma :: Int -> (Float, Float) -> [Float] -> Histograma
-histograma n r xs = foldl (\acc x -> agregar x acc) (vacio n (fst r, snd r)) xs
+histograma n r = foldl (\acc x -> agregar x acc) (vacio n r)
 
 {-
   acc = Histograma -> al inicio comienza vacio -> (vacio n (fst r, snd r))

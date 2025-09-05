@@ -22,8 +22,9 @@ data Expr
   | Div Expr Expr
   deriving (Show, Eq)
 
--- recrExpr :: ... anotar el tipo ...
-recrExpr = error "COMPLETAR EJERCICIO 7"
+recrExpr :: Const -> Expr -> [Const] -> Const
+recrExpr c _ [] = c
+recrExp c f (x:xs) = f x xs (recrExpr c f xs)
 
 -- foldExpr :: ... anotar el tipo ...
 foldExpr = error "COMPLETAR EJERCICIO 7"
