@@ -22,12 +22,39 @@ data Expr
   | Div Expr Expr
   deriving (Show, Eq)
 
-recrExpr :: Const -> Expr -> [Const] -> Const
-recrExpr c _ [] = c
-recrExp c f (x:xs) = f x xs (recrExpr c f xs)
+-- recrExpr :: Const -> Rango -> Suma -> Resta -> Mult -> Div -> Expr -> a
+recrExpr :: (Float -> a) -> (Float -> Float -> a) -> (a -> a -> a) -> (a -> a -> a) -> (a -> a -> a)
+            -> (a -> a -> a) -> Expr -> a
+recrExpr const rango suma resta multi divi expr =
+  case expr of
+    Const n -> const n
+    Rango x y -> rango x y
+    Suma e1 e2 -> suma (recrExprAux e1) (recrExprAux e2)
+    Resta e1 e2 -> resta (recrExprAux e1) (recrExprAux e2)
+    Mult e1 e2 -> multi (recrExprAux e1) (recrExprAux e2)
+    Div e1 e2 -> divi (recrExprAux e1) (recrExprAux e2)
+  where
+    recrExprAux = recrExpr const rango suma resta multi divi
 
--- foldExpr :: ... anotar el tipo ...
-foldExpr = error "COMPLETAR EJERCICIO 7"
+-- Observacion: Usamos "case expr of" para poder evitar usar ifThenElse y guardas ("|", "otherwise")
+-- debido a que eso nos iba a llevar a tener que realizar muchas funciones auxiliares (una para evaluar cada tipo de data)
+
+-- Ejemplos de uso de recrExpr:
+
+
+-- foldExpr :: Const -> Rango -> Suma -> Resta -> Mult -> Div -> Expr -> a
+foldExpr :: (Float -> a) -> (Float -> Float -> a) -> (a -> a -> a) -> (a -> a -> a) -> (a -> a -> a)
+            -> (a -> a -> a) -> Expr -> a
+foldExpr const rango suma resta multi divi expr =
+  case expr of
+    Const n -> const n
+    Rango x y -> rango x y
+    Suma e1 e2 -> suma (foldExprAux e1) (foldExprAux e2)
+    Resta e1 e2 -> resta (foldExprAux e1) (foldExprAux e2)
+    Mult e1 e2 -> multi (foldExprAux e1) (foldExprAux e2)
+    Div e1 e2 -> divi (foldExprAux e1) (foldExprAux e2)
+  where
+    foldExprAux = foldExpr const rango suma resta multi divi
 
 -- | Evaluar expresiones dado un generador de números aleatorios
 eval :: Expr -> G Float

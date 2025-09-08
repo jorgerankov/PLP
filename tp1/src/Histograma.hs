@@ -24,6 +24,7 @@ module Histograma
 where
 
 import Util
+import Data.List (zipWith4)
 
 data Histograma = Histograma Float Float [Int]
   deriving (Show, Eq)
@@ -118,4 +119,17 @@ casPorcentaje (Casillero _ _ _ p) = p
 
 -- | Dado un histograma, devuelve la lista de casilleros con sus límites, cantidad y porcentaje.
 casilleros :: Histograma -> [Casillero]
-casilleros _ = error "COMPLETAR EJERCICIO 6"
+casilleros (Histograma inicio tamaño cantidades) = 
+  zipWith4 Casillero limInf limSup cantidades porcentajes
+
+  where
+    nCasilleros = length cantidades - 2                   -- Total de casilleros sin -inf y +inf
+    tamIntervalo = tamaño / fromIntegral nCasilleros      -- Tamano de cada intervalo sin infinitos
+    
+    limInf = (-1/0) : límitesNormales                                                     -- Lista de límites inferiores
+    limSup = tail límitesNormales ++ [1/0]                                                -- Lista de límites superiores
+    límitesNormales = map (\i -> inicio + fromIntegral i * tamIntervalo) [0..nCasilleros] -- Puntos de corte
+               
+    total = fromIntegral (sum cantidades)                                         -- Total de valores en el Histograma
+    calcularPorcentaje c = if total == 0 then 0 else fromIntegral c / total * 100 -- Convierto cantidad a porcentaje
+    porcentajes = map calcularPorcentaje cantidades                               -- Calculo de porcentaje a cada cantidad
