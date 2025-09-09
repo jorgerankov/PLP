@@ -104,17 +104,38 @@ evalHistograma m n expr = error "COMPLETAR EJERCICIO 10"
 -- | Mostrar las expresiones, pero evitando algunos paréntesis innecesarios.
 -- En particular queremos evitar paréntesis en sumas y productos anidados.
 mostrar :: Expr -> String
-mostrar expr = case expr of
-  Const x -> show x
-  Rango x y -> show x ++ "~" ++ show y
-  Suma x y -> show x ++ "+" ++ show y
-  Resta x y -> show x ++ "-" ++ show y
-  Mult x y -> show x ++ "*" ++ show y
-  Div x y -> show x ++ "/" ++ show y
+mostrar = foldExpr 
+  show                                -- funcion Const
+  (\x y -> show x ++ "~" ++ show y)   -- funcion Rango
+  (\s1 s2 -> s1 ++ " + " ++ s2)       -- funcion Suma
+  (\s1 s2 -> s1 ++ " - " ++ s2)       -- funcion Resta
+  (\s1 s2 -> s1 ++ " * " ++ s2)       -- funcion Mult
+  (\s1 s2 -> s1 ++ " / " ++ s2)       -- funcion Div
+    
 
 
--- Funcion auxiliar para chequear cuando necesitamos usar los parentesis en una cuenta:
--- checkParentesis :: ConstructorExpr -> ConstructorExpr -> Bool
+-- Funcion auxiliar para chequear cuando necesitamos usar los parentesis del lado izquierdo de una cuenta:
+checkParentesisIzq :: ConstructorExpr -> ConstructorExpr -> Bool
+checkParentesisIzq ce1 ce2 = case (ce1, ce2) of
+  -- Caso de constantes/rangos -> No necesitan ()
+  (_, CEConst) -> False
+  (_, CERango) -> False
+  -- Casos mul/div con suma/resta
+  (CEMult, CESuma) -> True
+  (CEMult, CEResta) -> True
+  (CEDiv, CESuma) -> True
+  (CEDiv, CEResta) -> True
+  -- Caso default (solo) -> No necesita ()
+  _ -> False
+
+-- Funcion auxiliar para chequear cuando necesitamos usar los parentesis del lado derecho de una cuenta:
+checkParentesisDer :: ConstructorExpr -> ConstructorExpr -> Bool
+checkParentesisDer ce1 ce2 = checkParentesisIzq ce1 ce2 || case (ce1, ce2) of
+  (CEResta, CESuma) -> True
+  (CEDiv, CEMult) -> True
+  (CEDiv, CEDiv) -> True
+  _ -> False
+
 
 data ConstructorExpr = CEConst | CERango | CESuma | CEResta | CEMult | CEDiv
   deriving (Show, Eq)
