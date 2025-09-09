@@ -104,7 +104,17 @@ evalHistograma m n expr = error "COMPLETAR EJERCICIO 10"
 -- | Mostrar las expresiones, pero evitando algunos paréntesis innecesarios.
 -- En particular queremos evitar paréntesis en sumas y productos anidados.
 mostrar :: Expr -> String
-mostrar = error "COMPLETAR EJERCICIO 11"
+mostrar expr = case expr of
+  Const x -> show x
+  Rango x y -> show x ++ "~" ++ show y
+  Suma x y -> show x ++ "+" ++ show y
+  Resta x y -> show x ++ "-" ++ show y
+  Mult x y -> show x ++ "*" ++ show y
+  Div x y -> show x ++ "/" ++ show y
+
+
+-- Funcion auxiliar para chequear cuando necesitamos usar los parentesis en una cuenta:
+-- checkParentesis :: ConstructorExpr -> ConstructorExpr -> Bool
 
 data ConstructorExpr = CEConst | CERango | CESuma | CEResta | CEMult | CEDiv
   deriving (Show, Eq)
