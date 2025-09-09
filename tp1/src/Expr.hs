@@ -72,9 +72,9 @@ eval expr = recrExpr const rango suma resta multi divi expr
 
     operacionesAleatorios :: (Float -> Float -> Float) -> G Float -> G Float -> G Float
     operacionesAleatorios op x y gen = (op res1 res2, gen2) -- Tomo operacion a realizar, dameUno(a,b), dameUno(c,d) 
-                                                                -- y el Gen que quiera usar
+                                                            -- y el Gen que quiera usar
       where                                                     
-        (res1, gen1) = x gen   -- Obtengo res1 y un nuevo Gen a partir de dameUno(a,b) y el Gen original
+        (res1, gen1) = x gen    -- Obtengo res1 y un nuevo Gen a partir de dameUno(a,b) y el Gen original
         (res2, gen2) = y gen1   -- Obtengo res2 y un nuevo Gen a partir de dameUno(c,d) y el Gen1
 
                                 -- Tanto Gen1 como Gen2 como Gen van a tener un "estado" diferente
@@ -82,24 +82,6 @@ eval expr = recrExpr const rango suma resta multi divi expr
                                 -- Si usaramos el mismo generador para ambas operaciones, 
                                 -- ambas obtendrían el mismo valor y generarían valores similares.
 
-{-
-Ejemplos de eval:
-  -- Expresión simple
-    expr1 = Const 5.0
-    expr2 = Rango 1.0 10.0
-    expr3 = Suma (Const 3.0) (Rango 0.0 5.0)
-
-  -- Ejemplos con genFijo (siempre da el valor medio):
-    res1 = eval expr1 genFijo        -- (5.0, <Gen>)
-    res2 = eval expr2 genFijo        -- (5.5, <Gen>) - medio de [1,10]
-    res3 = eval expr3 genFijo        -- (5.5, <Gen>) - 3 + 2.5
-
-  -- Ejemplo con genNormalConSemilla:
-    gen = genNormalConSemilla 4
-    expr = Suma (Rango 1.0 5.0) (Rango 10.0 20.0)
-
-    (res1, gen1) = eval expr gen
--}
 
 -- | @armarHistograma m n f g@ arma un histograma con @m@ casilleros
 -- a partir del resultado de tomar @n@ muestras de @f@ usando el generador @g@.

@@ -40,16 +40,14 @@ testsAlinearDerecha :: Test
 testsAlinearDerecha =
   test
     [ alinearDerecha 6 "hola" ~?= "  hola",
-      alinearDerecha 10 "incierticalc" ~?= "incierticalc",
-      completar
+      alinearDerecha 10 "incierticalc" ~?= "incierticalc"
     ]
 
 testsActualizarElem :: Test
 testsActualizarElem =
   test
     [ actualizarElem 0 (+ 10) [1, 2, 3] ~?= [11, 2, 3],
-      actualizarElem 1 (+ 10) [1, 2, 3] ~?= [1, 12, 3],
-      completar
+      actualizarElem 1 (+ 10) [1, 2, 3] ~?= [1, 12, 3]
     ]
 
 testsVacio :: Test
@@ -66,9 +64,19 @@ testsVacio =
               Casillero 2 4 0 0,
               Casillero 4 6 0 0,
               Casillero 6 infinitoPositivo 0 0
-            ],
-      completar
+            ]
     ]
+    {- =========== Ejemplos de uso de vacio ===========
+      ghci> vacio 3 (3.0,5.0)
+        Histograma 3.0 5.0 [0,0,0,0,0]
+
+      ghci> vacio 8 (1.0, 7.0)
+        Histograma 1.0 7.0 [0,0,0,0,0,0,0,0,0,0]
+
+      ghci> vacio 0 (3.0, 5.0)
+        Histograma 3.0 5.0 [0,0]
+    -}
+
 
 testsAgregar :: Test
 testsAgregar =
@@ -94,16 +102,37 @@ testsAgregar =
                   Casillero 2 4 0 0,
                   Casillero 4 6 0 0,
                   Casillero 6 infinitoPositivo 0 0
-                ],
-          completar
+                ]
+          {- =========== Ejemplos de uso de agregar ===========
+            ghci> agregar 6.0 (Histograma 3.0 5.0 [0,0,0,0])
+              Histograma 3.0 5.0 [0,1,0,0]
+
+            ghci> agregar 2.0 (Histograma 3.0 5.0 [0,0,0,0])
+              Histograma 3.0 5.0 [1,0,0,0]
+
+            ghci> agregar 7.0 (Histograma 3.0 5.0 [0,0,0,0])
+              Histograma 3.0 5.0 [0,1,0,0]
+
+            ghci> agregar 1800.0 (Histograma 3.0 5.0 [0,0,0,0])
+              Histograma 3.0 5.0 [0,0,0,1]
+          -}
         ]
 
 testsHistograma :: Test
 testsHistograma =
   test
-    [ histograma 4 (1, 5) [1, 2, 3] ~?= agregar 3 (agregar 2 (agregar 1 (vacio 4 (1, 5)))),
-      completar
+    [ histograma 4 (1, 5) [1, 2, 3] ~?= agregar 3 (agregar 2 (agregar 1 (vacio 4 (1, 5))))
     ]
+    {- =========== Ejemplos de uso de histograma ===========
+      ghci> histograma 5 (3.0,5.0) [-5, 2, 7, 20, 60000]
+        Histograma 3.0 5.0 [2,1,0,0,1,0,1]
+
+      ghci> histograma 5 (3.0,5.0) [-5, 2, 1, 0, 600000, 7000000, 200000, 50000]
+        Histograma 3.0 5.0 [4,0,0,0,0,0,4]
+
+      ghci> histograma 5 (0.0, 5.0) [0,5,10,15,20]
+        Histograma 0.0 5.0 [0,1,1,1,1,1,0]
+    -}
 
 testsCasilleros :: Test
 testsCasilleros =
@@ -121,8 +150,7 @@ testsCasilleros =
               Casillero 2.0 4.0 1 100.0,
               Casillero 4.0 6.0 0 0.0,
               Casillero 6.0 infinitoPositivo 0 0.0
-            ],
-      completar
+            ]
     ]
 
 testsRecr :: Test
@@ -143,9 +171,26 @@ testsEval =
     [ fst (eval (Suma (Rango 1 5) (Const 1)) genFijo) ~?= 4.0,
       fst (eval (Suma (Rango 1 5) (Const 1)) (genNormalConSemilla 0)) ~?= 3.7980492,
       -- el primer rango evalua a 2.7980492 y el segundo a 3.1250308
-      fst (eval (Suma (Rango 1 5) (Rango 1 5)) (genNormalConSemilla 0)) ~?= 5.92308,
-      completar
+      fst (eval (Suma (Rango 1 5) (Rango 1 5)) (genNormalConSemilla 0)) ~?= 5.92308
     ]
+    {- Ejemplos de eval:
+      -- Expresión simple
+        expr1 = Const 5.0
+        expr2 = Rango 1.0 10.0
+        expr3 = Suma (Const 3.0) (Rango 0.0 5.0)
+
+      -- Ejemplos con genFijo (siempre da el valor medio):
+        res1 = eval expr1 genFijo        -- (5.0, <Gen>)
+        res2 = eval expr2 genFijo        -- (5.5, <Gen>) - medio de [1,10]
+        res3 = eval expr3 genFijo        -- (5.5, <Gen>) - 3 + 2.5
+
+      -- Ejemplo con genNormalConSemilla:
+        gen = genNormalConSemilla 4
+        expr = Suma (Rango 1.0 5.0) (Rango 10.0 20.0)
+
+        (res1, gen1) = eval expr gen
+    -}
+
 
 testsArmarHistograma :: Test
 testsArmarHistograma =

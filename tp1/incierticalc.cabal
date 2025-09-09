@@ -29,7 +29,7 @@ library
         Generador
         Expr
         Expr.Parser
-    hs-source-dirs: src,
+    hs-source-dirs: src
     build-depends:
         base,
         tinyapp >= 0.2.1.1 && < 0.3,
@@ -48,13 +48,6 @@ test-suite incierticalc-test
     type:             exitcode-stdio-1.0
     hs-source-dirs:   test
     main-is:          Main.hs
-    other-modules:
-        App
-        Util
-        Histograma
-        Generador
-        Expr
-        Expr.Parser
     build-depends:
         base,
         incierticalc,
