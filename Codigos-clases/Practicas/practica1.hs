@@ -133,7 +133,6 @@ permutaciones xs = concatMap procesarIndice [0..length xs - 1]
   where
     procesarIndice i = map (obtenerEnPos i xs :) (permutaciones (listaSinPosicion i xs))
 
-
 -- II)
 partes :: [a] -> [[a]]
 partes [] = [[]]
@@ -141,3 +140,95 @@ partes (x:xs) = sinX ++ conX
   where
     sinX = partes xs              -- Todas las partes sin x
     conX = map (x :) (partes xs)  -- Todas las partes con x
+
+-- III) REVISAR
+prefijos :: [a] -> [[a]]
+prefijos [] = [[]]
+prefijos xs = tail xs : prefijos (tail xs)
+
+
+-- ============ Ejercicio 5 ============
+-- elementosEnPosicionesPares no es estructural. Con foldr:
+elementosEnPosicionesPares :: [a] -> [a]
+elementosEnPosicionesPares xs = 
+  foldr (\(elem, i) xs -> if even i then elem : xs else xs) [] (zip xs [0..])
+
+-- entrelazar no es estructural. Con foldr:
+entrelazar :: [a] -> [a] -> [a]
+entrelazar xs ys = 
+  foldr (\(x,y) acc -> x : y : acc) (drop (length xs) ys) (zip xs ys)
+
+-- ============ Ejercicio 7 ============
+armarPares :: [a] -> [a] -> [(a,a)]
+armarPares xs ys = zip xs ys
+
+mapDoble :: (a -> b -> c) -> [a] -> [b] -> [c]
+mapDoble f xs ys = zipWith f xs ys
+
+
+-- ============ Ejercicio 8 ============
+sumaMat :: [[Int]] -> [[Int]] -> [[Int]]
+sumaMat xs ys = zipWith (zipWith (+)) xs ys
+-- zipWith (zipWith (+)) :: [[Int]] -> [[Int]] -> [[Int]]  (aplica la suma de listas a cada par de filas)
+
+--trasponer :: [[Int]] -> [[Int]]
+--trasponer xs ys = zipWith (zipWith reverse) xs ys
+
+-- ============ Ejercicio 9 ============
+foldNat :: a -> (a -> a) -> Integer -> a
+foldNat zero f n
+  | n <= 0    = zero
+  | otherwise = f (foldNat zero f (n - 1))
+
+
+{-
+Ejemplo con foldNat 1 (*2) 5:
+
+= (*2) (foldNat 1 (*2) 4)      -- Como 5 > 0, aplicamos f a foldNat(..., 4)
+= (*2) ((*2) (foldNat 1 (*2) 3))   -- Como 4 > 0, aplicamos f a foldNat(..., 3)
+= (*2) ((*2) ((*2) (foldNat 1 (*2) 2)))   -- Como 3 > 0, aplicamos f a foldNat(..., 2)
+= (*2) ((*2) ((*2) ((*2) (foldNat 1 (*2) 1))))   -- Como 2 > 0, aplicamos f a foldNat(..., 1)
+= (*2) ((*2) ((*2) ((*2) ((*2) (foldNat 1 (*2) 0)))))   -- Como 1 > 0, aplicamos f a foldNat(..., 0)
+= (*2) ((*2) ((*2) ((*2) ((*2) 1)))) 
+-}
+
+potencia :: Integer -> Integer  
+potencia n = foldNat n (^2) 1
+
+-- ============ Ejercicio 10 ============
+genLista :: a -> (a -> a) -> Integer -> [a]
+genLista inicial f n 
+  | n <= 0    = []
+  | otherwise = inicial : genLista (f inicial) f (n - 1)
+
+
+-- ============ Ejercicio 12 ============
+data AB a = Nil | Bin (AB a) a (AB a)
+
+-- II)
+esNil :: AB a -> Bool
+esNil Nil = True
+esNil (Bin i a d) = False
+
+altura :: AB a -> Int
+altura Nil = 0
+altura (Bin i a d) = 1 + max (altura i) (altura d)
+
+cantNodos :: AB a -> Int
+cantNodos Nil = 0
+cantNodos (Bin i a d) = 1 + cantNodos i + cantNodos d
+
+-- IV)
+esABB :: Ord a => AB a -> Bool
+esABB Nil = True
+esABB (Bin i a d) = todosmenores a i && todosMayores a d && esABB i && esABB d
+
+-- Todos los elems del arbol <= x
+todosmenores :: Ord a => a -> AB a -> Bool
+todosmenores _ Nil = True
+todosmenores x (Bin i a d) = a < x && todosmenores x i && todosmenores x d
+
+-- Todos los elems del arbol > x
+todosMayores :: Ord a => a -> AB a -> Bool
+todosMayores _ Nil = True
+todosMayores x (Bin i a d) = a > x && todosMayores x i && todosMayores x d

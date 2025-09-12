@@ -1,108 +1,123 @@
+-- pasaje de binario a decimal
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
-{-# HLINT ignore "Eta reduce" #-}
-{-# HLINT ignore "Use map" #-}
+{-# HLINT ignore "Use foldl" #-}
 
-infUno :: [Integer]
-infUno = 1 : infUno
 
-mejorSegunPractica :: (a -> a -> Bool) -> [a] -> a
-mejorSegunPractica comp (x : xs) =
-  case xs of
-    [] -> x
-    y : ys ->
-      if comp x m
-        then x
-        else m
+bin2dec :: [Int] -> Int
+bin2dec = foldl (\ac b -> b + 2 * ac) 0
+
+--Reverse con acumulador.
+reverseC :: [a] -> [a] -> [a]
+reverseC ac [] = ac
+reverseC ac (x : xs) = reverseC (x : ac) xs
+
+maximo :: Ord a => [a] -> a
+maximo = foldr1 max
+
+mejorSegun :: (a -> a -> Bool) -> [a] -> a
+mejorSegun p = foldl1 (\x rec -> if p x rec then x else rec)
+
+elems :: Eq a => a -> [a] -> Bool
+elems e = foldr ((||).(==e)) False
+
+take' :: [a] -> (Int -> [a])
+take' []  = const []
+take' (x:xs) = \n -> if n==0 then [] else x : take' xs (n-1)
+
+take'' :: [a] -> (Int -> [a])
+take'' = foldr (\x rec -> \n -> if n==0 then [] else x : rec (n-1)) (const [])
+
+pares :: [(Int,Int)]
+pares = [(x,s-x) | s <- [1..], x <- [1..s-1]]
+
+
+listasQueSuman :: Int -> [[Int]]
+listasQueSuman 0 = [[]]
+listasQueSuman n | n > 0 = [x : xs | x <- [1..n], xs <- listasQueSuman (n-x)]
+
+listas :: [[Int]]
+listas = [xs | n <- [1..], xs <- listasQueSuman n]
+
+listasJaja :: [[Int]]
+listasJaja = concatMap listasQueSuman [1..]
+
+data AEB a = Hoja a | Bin (AEB a) a (AEB a) deriving Show
+
+aeb = Bin (Hoja 3) 5 (Bin (Hoja 7) 8 (Hoja 1))
+
+foldAEB :: (b -> a -> b -> b)
+        -> (a -> b)
+        -> AEB a
+        -> b
+-- foldAEB f g (Hoja e)    = g e
+-- foldAEB f g (Bin i r d) = f (rec i) r (rec d)
+foldAEB f g t = case t of
+    Hoja e    -> g e
+    Bin i r d -> f (rec i) r (rec d)
   where
-    m = mejorSegunPractica comp xs
+    rec = foldAEB f g
 
--- ==== Maximo con MejorSegun ====
-maximoSegun :: [Int] -> Int
-maximoSegun xs = mejorSegunPractica (>) xs
+altura :: AEB a -> Int
+altura = foldAEB (\ri _ rd -> 1 + (max ri rd)) (const 1) 
 
--- ==== Minimo con MejorSegun ====
-minimoSegun :: [Int] -> Int
-minimoSegun xs = mejorSegunPractica (<) xs
+espejo :: AEB a -> AEB a
+espejo = foldAEB (\recI r recD -> Bin recD r recI) Hoja
 
--- ==== listaMasCorta con MejorSegun ====
-listaMasCortaSegun :: [[Int]] -> [Int]
-listaMasCortaSegun xs = mejorSegunPractica (<) xs
+data Polinomio a = X
+                 | Cte a
+                 | Suma (Polinomio a) (Polinomio a)
+                 | Prod (Polinomio a) (Polinomio a) 
 
--- ======== Funciones con filter ========
--- ==== deLongitudN ====
-deLongitudN :: Int -> [[a]] -> [[a]]
-deLongitudN n =
-  Prelude.filter (\xs -> length xs == n)
+--evaluar e X = e
+--evaluar e (Cte c) = c
+--evaluar e (Suma p1 p2) = (+) (evaluar e p1) (evaluar e p2)
+--evaluar e (Prod p1 p2) = evaluar e p1 * evaluar e p2
 
--- === filter((==n).filter)
+foldPoli :: b
+         -> (a -> b)
+         -> (b -> b -> b)
+         -> (b -> b -> b)
+         -> Polinomio a
+         -> b
+foldPoli cX cCte cSuma cProd p = case p of
+    X          -> cX
+    Cte c      -> cCte c 
+    Suma q1 q2 -> cSuma (rec q1) (rec q2)
+    Prod q1 q2 -> cProd (rec q1) (rec q2)
+  where
+    rec = foldPoli cX cCte cSuma cProd
 
--- ===== soloPuntosFijosEnN =====
-soloPuntosFijosEnN :: Int -> [Int -> Int] -> [Int -> Int]
-soloPuntosFijosEnN n =
-  Prelude.filter (\f -> n == f n)
+evaluar :: Num a => a -> Polinomio a -> a
+evaluar e = foldPoli e id (+) (*)
 
--- ========= Funciones con Map =========
--- ===== reverseAnidado =====
-reverseAnidado :: [[Char]] -> [[Char]]
-reverseAnidado xs = reverse (Prelude.map reverse xs)
+pol = Suma (Prod X X) (Cte 1)
 
--- === reverse.(map reverse)
+data RoseTree a = Rose a [RoseTree a] deriving Show
 
--- ===== paresCuadrados =====
-paresCuadrados :: [Int] -> [Int]
-paresCuadrados =
-  Prelude.map
-    ( \n ->
-        if even n
-          then n ^ 2
-          else n
-    )
+rose = Rose 3 [Rose 2 [],
+               Rose 1 [Rose 5 []],
+               Rose 4 []]
 
+foldRose :: (a -> [b] -> b) -> RoseTree a -> b
+foldRose f (Rose r rs) = f r (map rec rs)
+  where
+    rec = foldRose f
+    
+ramas :: RoseTree a -> [[a]]
+ramas = foldRose (\x rec -> if null rec 
+                            then [[x]]
+                            else map (x:) (concat rec))
+    
+type Conj a = (a->Bool)
 
+vacio :: Conj a -- a -> Bool
+vacio = const False
 
--- =========== Funcion fold ===========
-{-
-Un fold reduce una lista a un solo valor combinando elementos con una función y un valor inicial
+insertar :: Eq a => a -> Conj a -> Conj a
+insertar e c = \x -> e == x || c x
 
+pertenece :: Eq a => a -> Conj a -> Bool
+pertenece e c = c e
 
-Tipos:
-
-foldr  :: (a -> b -> b) -> b -> [a] -> b
-foldl  :: (b -> a -> b) -> b -> [a] -> b
-
-
-foldr f z [x1,x2,x3] ≡ x1 f (x2 f (x3 f z)) (asocia a la derecha)
-foldl f z [x1,x2,x3] ≡ ((z f x1) f x2) f x3 (asocia a la izquierda)
-foldl' :: (b -> a -> b) -> b -> [a] -> b  -- Igual a foldl pero evalúa el acumulador en cada paso
-
-Con operaciones no conmutativas (p. ej. resta) dan resultados distintos
-
-
-
-==== map con foldr: ====
-
-map f xs = foldr (\x acc -> f x : acc) [] xs
-
--- Paso a paso para f = (*2), xs = [1,2,3]
-foldr (\x acc -> (x*2):acc) [] [1,2,3]
-= (\1 acc -> 2:acc) (foldr ... [2,3])
-= 2 : (foldr (\x acc -> (x*2):acc) [] [2,3])
-= 2 : (4 : (foldr ... [3]))
-= 2 : 4 : (6 : [])
-= [2,4,6]
-
-
--}
-
--- ====== filter y map con foldr ======
-filter :: (a -> Bool) -> [a] -> [a]
-filter p xs = foldr (\x r -> if p x then x : r else r) [] xs
-
-map :: (a -> b) -> [a] -> [b]
-map f xs = foldr (\x r -> f x : r) [] xs
-
---- ====== listaComp con map y filter ======
-listaComp :: (a -> Bool) -> (a -> b) -> [a] -> [b]
-listaComp p f xs = Prelude.map f (Prelude.filter p xs)
-
--- === map f . filter p
+eliminar :: Eq a => a -> Conj a -> Conj a
+eliminar e c = \x -> e /= x && c x  

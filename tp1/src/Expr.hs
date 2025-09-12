@@ -86,13 +86,16 @@ eval expr = recrExpr const rango suma resta multi divi expr
 -- | @armarHistograma m n f g@ arma un histograma con @m@ casilleros
 -- a partir del resultado de tomar @n@ muestras de @f@ usando el generador @g@.
 armarHistograma :: Int -> Int -> G Float -> G Histograma
-armarHistograma m n f g = error "COMPLETAR EJERCICIO 9"
+armarHistograma m n f g = (histograma m (lowerRange, upperRange) sampleValues, updatedF)
+    where
+        (sampleValues, updatedF) = muestra f n g
+        (lowerRange, upperRange) = rango95 sampleValues
 
 -- | @evalHistograma m n e g@ evalúa la expresión @e@ usando el generador @g@ @n@ veces
 -- devuelve un histograma con @m@ casilleros y rango calculado con @rango95@ para abarcar el 95% de confianza de los valores.
 -- @n@ debe ser mayor que 0.
 evalHistograma :: Int -> Int -> Expr -> G Histograma
-evalHistograma m n expr = error "COMPLETAR EJERCICIO 10"
+evalHistograma m n expr = armarHistograma m n (eval expr)
 
 -- Podemos armar histogramas que muestren las n evaluaciones en m casilleros.
 -- >>> evalHistograma 11 10 (Suma (Rango 1 5) (Rango 100 105)) (genNormalConSemilla 0)
@@ -105,13 +108,12 @@ evalHistograma m n expr = error "COMPLETAR EJERCICIO 10"
 -- En particular queremos evitar paréntesis en sumas y productos anidados.
 mostrar :: Expr -> String
 mostrar = foldExpr 
-  show                                -- funcion Const
-  (\x y -> show x ++ "~" ++ show y)   -- funcion Rango
-  (\s1 s2 -> s1 ++ " + " ++ s2)       -- funcion Suma
-  (\s1 s2 -> s1 ++ " - " ++ s2)       -- funcion Resta
-  (\s1 s2 -> s1 ++ " * " ++ s2)       -- funcion Mult
-  (\s1 s2 -> s1 ++ " / " ++ s2)       -- funcion Div
-    
+ show                                -- funcion Const
+ (\x y -> show x ++ "~" ++ show y)   -- funcion Rango
+ (\s1 s2 -> s1 ++ " + " ++ s2)       -- funcion Suma
+ (\s1 s2 -> s1 ++ " - " ++ s2)       -- funcion Resta
+ (\s1 s2 -> s1 ++ " * " ++ s2)       -- funcion Mult
+ (\s1 s2 -> s1 ++ " / " ++ s2)       -- funcion Div
 
 
 -- Funcion auxiliar para chequear cuando necesitamos usar los parentesis del lado izquierdo de una cuenta:
@@ -135,7 +137,6 @@ checkParentesisDer ce1 ce2 = checkParentesisIzq ce1 ce2 || case (ce1, ce2) of
   (CEDiv, CEMult) -> True
   (CEDiv, CEDiv) -> True
   _ -> False
-
 
 data ConstructorExpr = CEConst | CERango | CESuma | CEResta | CEMult | CEDiv
   deriving (Show, Eq)
