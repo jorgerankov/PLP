@@ -2,11 +2,6 @@
                             ========================== Ejercicio 1 ==========================
 
  
-- intercambiar (x,y) = (y,x)                    - asociarD ((x,y),z)) = (x,(y,z)) 
-- espejar (Left x) = Right x                    - flip f x y = f y x
-  espejar (Right x) = Left x                    - curry f x y = f (x,y)
-- asociarI (x,(y,z)) = ((x,y),z)                - uncurry f (x,y) = f x y                 
-
 
 i. ∀ p::(a,b) . intercambiar (intercambiar p) = p
 
@@ -75,33 +70,6 @@ ii. ∀ f::(a,b)->c . uncurry (curry f) = f
 
 
                             ========================== Ejercicio 3 ==========================
-
-
-
-
-length :: [a] -> Int                                    (++) :: [a] -> [a] -> [a]
-    {L0} length [] = 0                                      {++0} [] ++ ys = ys
-    {L1} length (x:xs) = 1 + length xs                      {++1} (x:xs) ++ ys = x : (xs ++ ys)
-
-
-duplicar :: [a] -> [a]                                  append :: [a] -> [a] -> [a]
-    {D0} duplicar [] = []                                   {A0} append xs ys = foldr (:) ys xs
-    {D1} duplicar (x:xs) = x : x : duplicar xs          
-
-reverse :: [a] -> [a]                                   map :: (a -> b) -> [a] -> [b]
-    {R0} reverse = foldl (flip (:)) []                      {M0} map f [] = []
-                                                            {M1} map f (x:xs) = f x : map f xs
-
-filter :: (a -> Bool) -> [a] -> [a]
-    {F0} filter p [] = []
-    {F1} filter p (x:xs) = if p x then x : filter p xs else filter p xs
-
-elem :: Eq a => a -> [a] -> Bool
-    {E0} elem e [] = False
-    {E1} elem e (x:xs) = (e == x) || elem e xs
-
-
-
 
 
 i. ∀ xs::[a] . length (duplicar xs) = 2 * length xs
@@ -241,16 +209,6 @@ vii. ∀ xs::[a] . ∀ p::a->Bool . ∀ e::a . (elem e (filter p xs) => elem e x
                             ========================== Ejercicio 4 ==========================
 
 
-reverse :: [a] -> [a]
-    {R0} reverse [] = []
-    {R1} reverse (x:xs) = reverse xs ++ [x]
-
-foldr :: (a -> b -> b) -> b -> [a] -> b
-    {FR0} foldr f z [] = z
-    {FR1} foldr f z (x:xs) = f x (foldr f z xs)
-
-
-
 i. reverse = foldr (\x rec -> rec ++ (x:[])) []
 
 
@@ -297,18 +255,147 @@ iii. ∀ xs::[a] . ∀ x::a . reverse (xs ++ [x]) = x:reverse xs
 
 
 
-
                             ========================== Ejercicio 5 ==========================
 
 
-i. reverse . reverse = id
+Lema generador para reverse:
+    ∀ ys zs, reverse (ys ++ zs) = reverse zs ++ reverse ys
 
-            
+Principio de extensionalidad funcional:
+    Cuando comparo dos listas, son iguales si tienen los mismos elementos en el mismo orden, 
+    o dos funciones son iguales si devuelven siempre el mismo resultado.
+
+
+i. reverse . reverse = id => Es decir, ∀xs::[a]. reverse (reverse xs) = xs
+    Por inducción sobre xs:
+    
+    Caso base: xs = []
+        reverse (reverse [])    ={R0}
+        reverse []              ={R0}
+        []                      = xs
+    Se cumple el Caso Base
+
+    Paso inductivo: xs = y:ys
+        HI:     Asumo como Verdadero que ∀ys::[a]. reverse (reverse ys) = id = ys
+        qvq:    reverse (reverse (y:ys)) = id               = y:ys
+                reverse (reverse (y:ys))                    ={R1}
+                reverse (reverse ys ++ [y])                 ={Lema generador de reverse}
+                reverse [y] ++ reverse (reverse ys)         ={R1}
+                reverse [] ++ [y] ++ reverse (reverse ys)   ={R0}           
+                [] ++ [y] ++ reverse (reverse ys)           =
+                [y] ++ reverse (reverse ys)                 ={HI}
+                [y] ++ ys                                   = y:ys
+        Como queria probar
+
+ii. append = (++) => Es decir, ∀ xs::[a] ys::[a]. append xs ys = xs ++ ys
+    Por inducción sobre xs:
+    Caso base: xs = []
+        append [] ys        ={A0}
+        foldr (:) ys []     ={FR0}
+        ys                  = [] ++ ys = xs ++ ys
+    Se cumple el caso base
+
+    Paso inductivo: xs = x:xs'
+        HI: Asumo como Verdadero que ∀ xs::[a] ys::[a]. append xs' ys = xs' ++ ys
+        qvq:    append x:xs' ys             = (x:xs') ++ ys
+                append x:xs' ys             ={A0}
+                foldr ys (x:xs')            ={FR1}
+                (:) x (foldr (:) ys xs')    =
+                x : foldr (:) ys xs'        ={A0}
+                x : append xs' ys           ={HI}
+                (x : xs') ++ ys
+        Como queria probar
+
+
+
+iii. map id = id => Es decir ∀ xs::[a], f::(a -> b). map id xs = xs
+    Por inducción sobre xs:
+    Caso base: xs = []
+        map id [] = [] = xs = id
+    Se cumple el caso base
+    
+    Paso inductivo: xs = x:xs'
+        HI: Asumo como Verdadero que map id xs' = xs'
+        qvq:    map id (x:xs') = (x:xs') = id
+                map id (x:xs')           ={M1}
+                id x : map id xs'        ={HI}
+                id x : xs'               ={id}
+                x : xs'
+        Como queria probar
+
+
+
+                            ========================== Ejercicio 6 ==========================
+Demostrar que zip = zip' utilizando inducción estructural y el principio de extensionalidad.
+
+
+
+                            ========================== Ejercicio 7 ==========================
 
 
 
 
+i. Eq a => ∀ xs::[a] . ∀ e::a . ∀ p::a -> Bool . elem e xs && p e = elem e (filter p xs)
+    Si elem e xs = True y p e = True implica que, al aplicar filter p en xs, 
+    e va a aparecer dentro de xs luego de aplicar el filtro, tal que elem e xs
+    seguira siendo True. Luego, sucede lo mismo para el caso p e = False y 
+    para elem e = False 
 
+    Caso base: xs = []
+        elem e xs && p e    = elem e (filter p xs)
+        elem e [] && p e    = elem e (filter p [])  ={E0, F0}
+        False && p e        = elem e ([])           ={F0}
+        False               = False                 
+    Se cumple el caso base
+
+    Paso inductivo: xs = x:xs'
+        HI: Asumo como Verdadero que elem e xs' && p e = elem e (filter p xs')
+        qvq: elem e (x:xs') && p e = elem e (filter p (x:xs'))
+                elem e (x:xs') && p e            ={E1}
+                (e == x) || elem e xs' && p e    ={HI}
+                (e == x) || elem e (filter p xs) 
+
+
+
+ii. Eq a => ∀ xs::[a] . ∀ e::a . elem e xs = elem e (nub xs)
+    
+    Verdadero, nub elimina las apariciones repetidas del elem e en xs, tal que siempre va a haber 
+    al menos un e en xs
+
+    Caso base: xs = []
+        elem e [] = elem e (nub []) ={N0}
+        elem e [] = elem e []       ={E0}
+        False = False
+    Se cumple el caso base
+
+    Paso inductivo: xs = x:xs'
+        HI: Asumo como Verdadero que elem e xs' = elem e (nub xs')
+        qvq: elem e x:xs' = elem e (nub x:xs')
+
+        elem e x:xs'             ={E1}
+        (e == x) || elem e xs'   ={HI}
+        (e == x) || elem e (nub xs')
+
+        Si (e == x) = True,
+        True || elem e (nub xs') = True por {OR} = elem e (nub x:xs')
+
+        Si (e == x) = False,
+        False || elem e (nub xs') = elem e (nub xs') por {OR}
+                                    
+
+    Luego, se cumple la igualdad en ambos casos
+
+
+
+iii. Eq a => ∀ xs::[a] . ∀ ys::[a] . ∀ e::a . elem e (union xs ys) = (elem e xs) || (elem e ys)
+
+    Verdadero, elem e (union xs ys) == elem e (xs ++ ys), tal que e puede estar en xs y/o en ys, o en ninguna
+    de las 2, dando los 4 casos posibles: T T, T F, F T y F F
+
+    Caso base: xs = []
+        elem e (union [] ys) = (elem e []) || (elem e ys) ={U0}
+        elem e ys = False || (elem e ys) ={OR}
+        elem e ys = elem e ys
 
 
 
