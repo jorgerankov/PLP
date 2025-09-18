@@ -69,3 +69,6 @@ intersect :: Eq a => [a] -> [a] -> [a]
 {CONGRUENCIA ==} ∀ x::a . ∀ y::a . ∀ f::a->b . (a == b ⇒ f a == f b)
 
  -}
+
+intersect :: Eq a => [a] -> [a] -> [a]
+intersect xs ys = filter (\e -> elem e ys) xs

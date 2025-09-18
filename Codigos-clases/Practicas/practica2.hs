@@ -332,9 +332,6 @@ Demostrar que zip = zip' utilizando inducción estructural y el principio de ext
 
                             ========================== Ejercicio 7 ==========================
 
-
-
-
 i. Eq a => ∀ xs::[a] . ∀ e::a . ∀ p::a -> Bool . elem e xs && p e = elem e (filter p xs)
     Si elem e xs = True y p e = True implica que, al aplicar filter p en xs, 
     e va a aparecer dentro de xs luego de aplicar el filtro, tal que elem e xs
@@ -396,9 +393,99 @@ iii. Eq a => ∀ xs::[a] . ∀ ys::[a] . ∀ e::a . elem e (union xs ys) = (elem
         elem e (union [] ys) = (elem e []) || (elem e ys) ={U0}
         elem e ys = False || (elem e ys) ={OR}
         elem e ys = elem e ys
+    Se cumple el caso base
+
+    Paso inductivo: xs = x:xs'
+    HI: Asumo como Verdadero que ∀ xs::[a] . ∀ ys::[a] . ∀ e::a . elem e (union xs' ys) = (elem e xs') || (elem e ys)
+    qvq:    elem e (union x:xs' ys) = (elem e x:xs') || (elem e ys)
+            elem e (union x:xs' ys)                                     ={U0}
+            elem e (nub (x : (xs' ++ ys)))                              ={N1}
+            elem e (x : filter (\y -> x /= y) (nub xs' ++ ys))          ={E1}
+            (e == x) || elem e (filter (\y -> x /= y) (nub xs' ++ ys))) ={HI} {nub viene derivado de union}
+            (e == x) || (elem e xs') || (elem e ys)
+
+            Caso (e == x):
+                True || ... || ... = True
+            Caso (e/= x):
 
 
 
+iv. Eq a => ∀ xs::[a].∀ ys::[a].∀ e::a . elem e (intersect xs ys) = (elem e xs) && (elem e ys)
+        Verdadero, si un elemento existe en ambas listas = True, que es equiv a buscar el elem en la interseccion de ambas
+        
+    Caso base: xs = []
+        elem e (intersect [] ys)   = (elem e []) && (elem e ys)
+        elem e []                  = False && elem e ys
+        False                      = False
+    Se cumple el caso base
+
+    Paso inductivo: xs = x:xs'
+    HI: Asumo como Verdadero que ∀ xs'::[a].∀ ys::[a].∀ e::a . elem e (intersect xs' ys) = (elem e xs') && (elem e ys)
+    qvq:    elem e (intersect x:xs' ys)                         = (elem e x:xs') && (elem e ys)
+            elem e (intersect x:xs' ys)                         ={I0}
+            elem e (x : filter (\e -> elem e ys) xs')           ={E1}
+            (e == x) || elem e (filter (\e -> elem e ys) xs')   ={HI} {(filter (\e -> elem e ys) xs') == intersect xs' ys}
+            (e == x) || (elem e xs') && (elem e ys)
+            
+            Caso (e == x):
+                True || (elem e xs') && (elem e ys) = True
+            Caso (e /= x):
+                False || (elem e xs') && (elem e ys)
+
+
+
+                            ========================== Ejercicio 9 ==========================
+
+foldNat :: a -> (a -> a) -> Integer -> a
+{FN0} n <= 0    = zero
+{FN1} f (foldNat zero f (n - 1))
+
+potencia :: Integer -> Integer  
+potencia n = foldNat n (^2) 1
+
+    Caso base: n = 0
+        potencia 0 = foldNat 0 (^2) 1 ={FN0}
+        zero
+    Se cumple el caso base
+
+    Paso inductivo: n = x
+    HI: Asumo como Verdadero que potencia x = foldNat x (^2) 1
+    qvq: potencia x+1 = foldNat (x+1) (^2) 1
+    potencia x+1
+
+
+
+                            ========================== Ejercicio 10 ==========================
+altura :: AB a -> Int
+{AL0} altura Nil = 0
+{AL1} altura (Bin i a d) = 1 + max (altura i) (altura d)
+
+cantNodos :: AB a -> Int
+{CN0} cantNodos Nil = 0
+{CN1} cantNodos (Bin i a d) = 1 + cantNodos i + cantNodos d
+
+
+∀ x::AB a . altura x ≤ cantNodos x
+
+Caso base: x = Nil
+    altura Nil ≤ cantNodos Nil  ={AL0}
+    0 ≤ cantNodos Nil           ={CN0}
+    0 ≤ 0
+Se cumple el caso base
+
+Paso inductivo: x = Bin i a d
+    HI: Asumo como Verdadero que la propiedad es verdadera para los subárboles izquierdo y derecho:
+        altura i ≤ cantNodos i
+        altura d ≤ cantNodos d
+    qvq:    altura (Bin i a d) ≤ cantNodos (Bin i a d)                                              ={sii}
+            1 + max (altura i) (altura d) ≤ 1 + cantNodos i + cantNodos d                           ={saco +1 de ambos lados}
+            max (altura i) (altura d) ≤ cantNodos i + cantNodos d                                   ={HI}
+            
+            altura i ≤ cantNodos i, altura d ≤ cantNodos d                                          ={=>}
+            
+            max (altura i) (altura d) ≤ max (cantNodos i) (cantNodos d) ≤ cantNodos i + cantNodos d ={transitividad}
+            max (altura i) (altura d) ≤ cantNodos i + cantNodos d
+    Como queria probar
 
 
 
