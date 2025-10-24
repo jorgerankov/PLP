@@ -1,0 +1,420 @@
+================================================= Ejercicio 1 =================================================
+i. λx: Bool.succ(x)
+No es sintacticamente valida, succ(x) deberia devolver un Nat, pero x es de tipo Bool => succ(Bool) no tipa correctamente
+
+ii. λx.isZero(x)
+Es sintacticamente valida, pertenece a los terminos sin anotaciones
+
+iii. X1 → σ
+No es sintacticamente valida, ya que σ no existe en los tipos 
+
+iv. erase(f y)
+No es sintacticamente valida, erase no existe como termino en ninguno de los mencionados
+
+v. X1
+Es sintacticamente valida, pertenece a los tipos (Xn)
+
+vi. X1 → (Bool → X2)
+Es sintacticamente valida, pertenece a los tipos (τ → τ) 
+
+vii. λx: X1 → X2. if zero then True else zero succ(True)
+No es sintacticamente valida, succ(True) no pertenece ni a los terminos anotados ni a los terminos sin anotaciones
+
+viii. erase(λf : Bool → Bool.λy : Bool.f y)
+No es sintacticamente valida, erase no existe como termino en ninguno de los mencionados
+
+
+
+================================================= Ejercicio 2 =================================================
+i. S = {X1 := Nat} S({x : X1 → Bool})
+x : Nat -> Bool
+
+ii. S = {X1 := X2 → X3, X4 := Bool} S({x : X4 → Bool}) ⊢ S(λx: X1 → Bool.x): S(Nat → X2)
+{x : Bool → Bool} ⊢ λx: (X2 → X3) → Bool.x: Nat → X2
+
+
+================================================= Ejercicio 3 =================================================
+X1 → X2         Nat         X2 → Bool       X3 → X4 → X5
+
+X1 → X2 con X3 → X4 → X5, si {X1 := X3, X2 := X4 → X5}
+X1 -> X2 con X2 -> Bool, si {X1 := Bool, X2 := Bool}
+
+X1      Nat → Bool      (Nat → X2) → Bool       Nat → X2 → Bool
+
+X1 con Nat → Bool, si {X1 := Nat → Bool}
+X1 con (Nat → X2) → Bool, si {X1 := (Nat → X2) → Bool}
+X1 con Nat → X2 → Bool, si {X1 := Nat → X2 → Bool}
+
+
+
+================================================= Ejercicio 4 =================================================
+i. λz. if z then zero else succ(zero)
+
+1. Rectificacion del termino: {}
+
+2. Anotacion
+    Γ0 = {}
+    M0 = λz. if z then zero else succ(zero)
+
+3. Generacion de restricciones
+    I({}        | λz. if z then zero else succ(zero))   = (τ2 | E2)
+    I({z:X1}    | if z then zero else succ(zero))       = (if M then M else M | E)
+        = I({z:X1} | z) = (X1 | {}) 
+        = I({z:X1} | zero) = (Nat | {}), cuando z:X1, zero es de tipo Nat y no genera excepciones
+        = I({z:X1} | succ(zero)) = (Nat | {Nat = Nat}), cuando z:X1, succ(zero) es de tipo Nat y espera que tome un tipo Nat
+    
+    = (τ_if | {} ∪ {} ∪ {Nat = Nat} ∪ {X1 = Bool, Nat = Nat, τ_if = Nat})
+    = (τ_if | {X1 = Bool, Nat = Nat, τ_if = Nat})
+
+4. Unificacion de restricciones
+    Restricciones: {X1 = Bool, Nat = Nat}
+    MGU: S = {X1 := Bool}
+
+
+
+ii. λy. succ((λx.x) y)
+
+1. Rectificacion del termino: {}
+
+2. Anotacion
+    Γ0 = {}
+    M0 = λy. succ((λx.x) y)
+
+3. Generacion de restricciones
+    I({} | λy. succ((λx.x) y)) = (τ | E)
+    I({y:X1} | succ((λx.x) y) = (τ | E)
+
+
+
+iii. λx. if isZero(x) then x else (if x then x else x)
+No es un termino tipable, ya que se pide en un principio isZero(x), dando a entender que x := Nat, mientras que luego, en (if x..., se pide
+que x := Bool, y no pueden suceder ambas al mismo tiempo, ya que ambas restricciones se refieren a la misma variable ligada x
+
+
+iv. λx.λy. if x then y else succ(zero)
+1. Rectificacion del termino: {}
+
+2. Anotacion
+    Γ0 = {}
+    M0 = λx.λy. if x then y else succ(zero)
+
+3. Generacion de restricciones
+    I({} | λx.λy. if x then y else succ(zero)) 
+    I({x:X1} | λy. if x then y else succ(zero)) = = (X1 -> τ1 | E1)
+    I({x:X1, y: X2} | if x then y else succ(zero)) = (X2 -> τ2 | E2)
+        = I({x:X1, y: X2} | x) = (X1 | {})
+        = I({x:X1, y: X2} | y) = (X2 | {})4. Unificacion de restricciones
+        = I({x:X1, y: X2} | succ(zero)) = (Nat | Nat = Nat)
+        
+        X3 representa el res del if
+        = (X3 | {X1 = Bool, X2 = Nat, X3 = X2, Nat = Nat})
+        = (X3 | {X1 = Bool, X2 = Nat, X3 = X2})
+
+        = (X2 -> X3 | {X1 = Bool, X2 = Nat, X3 = X2})
+    = (X1 -> X2 -> X3 | {X1 = Bool, X2 = Nat, X3 = X2})
+
+4. Unificacion de restricciones
+    Restricciones: {X1 = Bool, X2 = Nat, X3 = X2}
+    MGU: S = {X1 := Bool, X2 := Nat, X3 := Nat}
+
+
+v. if True then (λx.zero)zero else (λx.zero)False
+x se ignora porque no es aplicada a ninguna variable
+
+1. Rectificacion: {}
+
+2.  Γ0 = {}
+    M0 = if True then (λx.zero)zero else (λx.zero)False 
+
+3.  I({} | True) = (Bool | {})
+    
+    I({} | (λx.zero)zero)
+        I({} | λx.zero) = (X1 -> Nat | {})
+        I({} | zero) = (Nat | {})
+    = (X2 | {X1 -> Nat = Nat -> X2})
+    = (X2 | {X1 = Nat, X2 = Nat})
+    = (Nat | {X1 = Nat})
+
+    
+    I({} | (λx.zero)False) = (Bool | {})
+        I({} | λx.zero) = (X3 -> Nat | {})
+        I({} | False) = (Bool | {})
+    = (X4 | {X3 -> Nat = Bool -> X4})
+    = (X4 | {X3 = Bool, X4 = Nat})
+    = (Nat | {X3 = Bool})
+    (X5 | {X1 = Nat, X3 = Bool, Bool = Bool, Nat = Nat, X5 = Nat})
+
+4. Unificacion de restricciones
+    Restricciones: {X1 = Nat, X3 = Bool, Bool = Bool, Nat = Nat, X5 = Nat}
+    MGU: S = {{X1 := Nat, X3 := Bool, X5 := Nat}}
+
+
+vi. (λf. if True then f zero else f False) (λx. zero)
+
+    No es un termino tipable, ya que en la rama ifThenElse, f debe ser aplicado sobre Nat o sobre Bool denendiendo el caso que tome,
+    generando que f se corrompa, ya que no puede tomar un argumento distinto dependiendo del caso que se aplique, f es de un unico tipo siempre
+    f no puede ser simultaneamente Nat → τ y Bool → τ 
+
+
+vii. λx.λy.λz. if z then y else succ(x)
+
+1. Rectificacion: {}
+
+2.  Γ0 = {}
+    M0 = λx.λy.λz. if z then y else succ(x) 
+
+3.  I({} | λx.λy.λz. if z then y else succ(x)) 
+    I({x: X1} | λy.λz. if z then y else succ(x)) = (X1 -> τ1 | E1)
+    I({x: X1, y: X2} | λz. if z then y else succ(x)) = (X2 -> τ2 | E2)
+    I({x: X1, y: X2, z: X3} | if z then y else succ(x)) = (X3 -> τ3 | E3)
+        I({x: X1, y: X2, z: X3}) | z = (X3 | {})
+        I({x: X1, y: X2, z: X3}) | y = (X2 | {})
+        I({x: X1, y: X2, z: X3}) | succ(x) = (Nat | Nat = Nat)
+    = (X4 | {X3 = Bool, X2 = Nat, X1 = X2, Nat = Nat})
+    = (X4 | {X3 = Bool, X2 = Nat, X1 = X2})
+    = (X3 -> X4 | {X3 = Bool, X2 = Nat, X4 = X2, X1 = Nat})  
+    = (X2 -> X3 -> X4 | {X3 = Bool, X2 = Nat, X4 = X2, X1 = Nat})  
+    = (X1 -> X2 -> X3 -> X4 | {X3 = Bool, X2 = Nat, X4 = X2, X1 = Nat})  
+    
+4. Restricciones
+    Restricciones: {X3 = Bool, X2 = Nat, X4 = X2, X1 = Nat}
+    MGU: S = {X3 := Bool, X2 := Nat, X4 := Nat, X1 := Nat}
+    
+
+================================================= Ejercicio 5 =================================================
+λx. λy. λz. z x y z
+1. Rectificacion: {}
+
+2.  Γ0 = {}
+    M0 = λx. λy. λz. z x y z
+  
+3.  ({} | λx. λy. λz. z x y z)
+    ({x:X1} | λy. λz. z x y z) = (X1 -> τ1 | E1)
+    ({x:X1, y:X2} | λz. z x y z) = (X2 -> τ2 | E2)
+    ({x:X1, y:X2, z:X3} | z x y z) = (X3 -> τ3 | E3)
+        
+        I({x:X1, y:X2, z:X3} | z x)
+            I({x:X1, y:X2, z:X3} | z) = (X3 | {}) 
+            I({x:X1, y:X2, z:X3} | x) = (X1 | {}) 
+            z debe tener tipo X1 -> X4
+            (X4 | {X3 = X1 -> X4})
+        
+        I({x:X1, y:X2, z:X3} | (z x) y)
+            I({x:X1, y:X2, z:X3} | y) = (X2 | {})
+            (X5 | {X3 = X1 → X4, X4 = X2 -> X5})
+        
+        I({x:X1, y:X2, z:X3} | ((z x) y) z)
+            I({x:X1, y:X2, z:X3} | z) = (X3 = {})
+            (X6 | {X3 = X1 → X4, X4 = X2 -> X5, X5 = X3 -> X6})
+
+    = (X3 -> X6 | {X3 = X1 → X4, X4 = X2 -> X5, X5 = X3 -> X6})
+    = (X2 -> X3 -> X6 | {X3 = X1 → X4, X4 = X2 -> X5, X5 = X3 -> X6})
+    = (X1 -> X2 -> X3 -> X6 | {X3 = X1 → X4, X4 = X2 -> X5, X5 = X3 -> X6})
+
+
+4.  {X3 = X1 → X4, X4 = X2 → X5, X5 = X3 → X6}
+        S1: X3 := X1 -> X4
+        S2: X4 := X2 -> X5, aplicando S2 en S1: 
+            X3 := X1 -> X2 -> X5
+
+        S3: X5 := X3 -> X6, aplicando S2 en S3:
+            X5 := (X1 -> X2 -> X5) -> X6
+        
+    X5 depende de si mismo, occurs check => falla
+    El término λx. λy. λz. z x y z no es tipable
+
+
+
+λx. x (w (λy.w y))
+1. Rectificacion: {}
+
+2.  Γ0 = {w: X1}
+    M0 = λx. x (w (λy.w y))
+
+3.  I({w: X1} | λx. x (w (λy.w y))) = (X1 -> τ1 | E1)
+    I({w: X1, x: X2} | x (w (λy.w y))) = (X2 -> τ2 | E2)
+    I({w: X1, x: X2, y: X3} | x (w (w y))) = (X3 -> τ3 | E3)
+    
+        I({w: X1, x: X2, y: X3} | (w y))
+            I({w: X1, x: X2, y: X3} | y) = (X3 | {})
+            I({w: X1, x: X2, y: X3} | w) = (X1 | {})
+            w tiene que tener tipo X3 -> X4
+            (X4 | {X1 = X3 -> X4})
+
+        I({w: X1, x: X2, y: X3} | w (w y))
+            I({w: X1, x: X2, y: X3} | w) = (X1 | {})
+            (X5 | {X1 = X3 -> X4, X1 = (X3 -> X4) -> X5})
+        
+        I({w: X1, x: X2, y: X3} | x (w (w y)))
+            I({w: X1, x: X2, y: X3} | x) = (X2 | {})
+            (X6 | {X1 = X3 -> X4, X1 = (X3 -> X4) -> X5, X2 = X5 -> X6})
+
+        = (X5 -> X6 | {X1 = X3 -> X4, X4 = X1 -> X5, X5 = X2 -> X6})
+
+4.  {X1 = X3 -> X4, X1 = (X3 -> X4) -> X5, X2 = X5 -> X6}
+        S1: X1 = X3 -> X4
+        S2: X1 = (X3 -> X4) -> X5, aplicando S2 en S1:
+            (X3 -> X4) -> X5 = X3 -> X4
+
+            esto requiere que   X3 = (X3 -> X4), occurs check, X3 depende de si mismo => falla
+                                X4 = X5
+
+
+
+
+λx.λy. xy
+1. Rectificacion: {}
+
+2.  Γ0 = {}
+    M0 = λx.λy. xy
+
+3.  I({} | λx.λy. xy)
+    I({x:X1} | λy. xy) = (X1 -> τ1 | E1)
+    I({x:X1, y:X2} | xy) = (X2 -> τ2 | E2)
+        
+        I({x:X1, y:X2} | xy)
+            I({x:X1, y:X2} | x) = (X1 | {})
+            I({x:X1, y:X2} | y) = (X2 | {})
+            x tiene que tener tipo X2 -> X3
+            (X3 | {X1 = X2 -> X3})
+        = (X2 -> X3 | {X1 = X2 -> X3})
+        = (X1 -> X2 -> X3 | {X1 = X2 -> X3})
+
+        Tipo inferido: X1 → X2 → X3
+        Restricciones: {X1 = X2 → X3}
+
+
+4.  Cjto de ecuaciones: {X1 = X2 -> X3}
+    Resolucion: X1 = X2 -> X3
+    -> S = {X1 := X2 -> X3}
+
+    MGU: S = {X1 := X2 -> X3}
+
+    Tipo con variables: X1 -> X2 -> X3
+    Aplicando S: (X2 -> X3) -> X2 -> X3
+
+El término es tipable con tipo (X2 → X3) → X2 → X3
+
+
+
+λx.λy. yx
+1. Rectificacion = {}
+
+2.  Γ0 = {}
+    M0 = λx.λy. yx
+
+3.  I({} | λx.λy. yx)
+    I({x:X1} | λy. yx) = (X1 -> τ1 | E1)
+    I({x:X1, y:X2} | yx) = (X2 -> τ2 | E2)
+        I({x:X1, y:X2} | yx)
+            I({x:X1, y:X2} | y) = (X2 | {})
+            I({x:X1, y:X2} | x) = (X1 | {})
+            y tiene que tener tipo X1 -> X3
+            (X3 | {X2 = X1 -> X3})
+        = (X1 -> X3 | {X2 = X1 -> X3})
+        = (X2 -> X1 -> X3 | {X2 = X1 -> X3})
+        
+        Tipo inferido: X2 -> X1 -> X3
+        Restricciones: {X2 = X1 -> X3}
+
+4.  Cjto de ecuaciones: {X2 = X1 -> X3}
+    Resolucion: X2 = X1 -> X3
+    S = {X2 := X1 -> X3}
+
+    MGU: S = {X2 := X1 -> X3}
+
+    Tipo con variables: X2 -> X1 -> X3
+    Aplicando S: (X1 -> X3) -> X1 -> X3
+
+    El termino es tipable con tipo (X1 -> X3) -> X1 -> X3
+
+λx.(λx. x)
+1.  Rectificacion = {λx.(λx. x) -> λz.(λx. x)}
+    Termino rectificado: λz.(λx. x)
+
+2.  Γ0 = {}
+    M0 = λz.(λx. x)
+
+3.  I({} | λz.(λx. x))
+    I({z:X1} | λx. x) = (X1 -> τ1 | E1)
+    I({z:X1, x:X2} | x) = (X2 -> τ2 | E2)
+        I({z:X1, x:X2} | x) = (X2 | {})
+        x esta en el contexto con tipo X2
+        = (X2 -> X2 | {})
+        = (X1 -> X2 -> X2 | {})
+
+    Tipo inferido: X1 -> X2 -> X2
+    Restricciones: {}
+    MGU: S = {}
+
+    El termino es tipable con tipo X1 -> X2 -> X2 
+
+
+λx.(λy. y)x
+1. Rectificacion = {}
+
+2. Anotación 
+    Γ0 = {}
+    M0 = λx.(λy. y)x
+
+3. Generación de restricciones
+    I({} | λx.(λy. y)x)
+    I({x:X1} | (λy. y) x) = (X1 -> τ1 | E1)
+        I({x:X1} | (λy. y) x)
+            I({x:X1} | (λy. y))
+                I({x:X1, y:X2} | y) = (X2 -> τ2 | E2)
+                I({x:X1, y:X2} | y) = (X2 | {})
+            = (X2 -> X2 | {})
+            
+            I({x:X1} | x) = (X1 | {})
+
+            (λy. y) tiene que tener tipo X1 -> X3
+            pero  (λy. y) tiene tipo X2 -> X2
+            (X2 -> X2 = X1 -> X3)
+        = (X3 | {X2 -> X2 = X1 -> X3})           
+        Unificando,
+            X2 = X1 y X2 = X3
+            entonces X1 = X2 = X3
+            = (X3 | {X2 = X1, X2 = X3})
+        = (X1 → X3 | {X1 = X2, X2 = X3})
+
+        Tipo inferido: X1 → X3
+        Restricciones: {X1 = X2, X2 = X3}
+
+
+4. Unificación
+    Conjunto de ecuaciones: {X1 = X2, X2 = X3}
+    X1 = X2  ->  S1 = {X1 := X2}
+    X2 = X3  ->  S2 = {X2 := X3}
+
+    MGU: S = {X1 := X3, X2 := X3}
+
+    El termino es tipable con tipo X3 -> X3 ✅
+
+
+(λz.λx. x (z (λy. z))) True
+
+
+
+================================================= Ejercicio 7 =================================================
+i. Utilizar el algoritmo de inferencia sobre la siguiente expresión: λy.(x y) (λz.x2)
+
+    λy.(x y) (λz.x2)
+
+1. Rectificacion = {}
+
+2. Anotación 
+    Γ0 = {}
+    M0 = λy.(x y) (λz.x2)
+
+3. Generación de restricciones
+
+
+
+
+ii. Una vez calculado, demostrar (utilizando chequeo de tipos) que el juicio encontrado es correcto.
+iii. ¿Qué ocurriría si x2 fuera x?
+
+
+
+
