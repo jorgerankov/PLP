@@ -399,15 +399,54 @@ El término es tipable con tipo (X2 → X3) → X2 → X3
 ================================================= Ejercicio 7 =================================================
 i. Utilizar el algoritmo de inferencia sobre la siguiente expresión: λy.(x y) (λz.x2)
 
-    λy.(x y) (λz.x2)
+λy.(x y) (λz.x2)
 
 1. Rectificacion = {}
 
 2. Anotación 
-    Γ0 = {}
+    Γ0 = {x:X1, x2:X2}
     M0 = λy.(x y) (λz.x2)
 
 3. Generación de restricciones
+    I({x:X1, x2:X2} | λy.(x y) (λz.x2))
+    I({x:X1, x2:X2, y:X3} | (x y) (λz.x2)) = (X3 -> τ1 | E1)
+        
+        I({x:X1, x2:X2, y:X3} | (x y))
+        I({x:X1, x2:X2, y:X3} | x) =  (X1 | {})
+        I({x:X1, x2:X2, y:X3} | y) =  (X3 | {})
+
+        x tiene el tipo X3 -> X4
+        = (X4 | {X1 = X3 -> X4})
+        tipo de x y = X4
+
+        I({x:X1, x2:X2, y:X3} | λz.x2)
+        I({x:X1, x2:X2, y:X3, z:X4} | x2) = (X5 -> τ2 | E2)
+        I({x:X1, x2:X2, y:X3, z:X4} | x2) = (X2 | {})
+        = (X5 -> X2 | {})
+
+        (x y) tiene tipo X4
+        λz.x2 tiene tipo X5 -> X2
+        entonces, (x y) debe tener tipo (X5 -> X2) -> X6 
+        tal que X4 = (X5 -> X2) -> X6
+
+        = (X6 | {X1 = X3 -> X4, X4 = (X5 -> X2) -> X6})
+        = (X3 -> X6 | {X1 = X3 -> X4, X4 = (X5 -> X2) -> X6})
+    
+    Tipo inferido: X3 → X6
+    Restricciones: {X1 = X3 → X4, X4 = (X5 → X2) → X6}
+            
+4. Unificacion
+    Restricciones: {X1 = X3 → X4, X4 = (X5 → X2) → X6}
+
+    S1 = {X1 := X3 -> X4}
+    S2 = {X4 := (X5 → X2) → X6}
+
+    Aplicando S2 en S1:
+        S1 = {X1 := X3 -> (X5 → X2) → X6}
+
+    S = {X1 := X3 -> (X5 → X2) → X6, X4 := (X5 → X2) → X6}
+
+
 
 
 
