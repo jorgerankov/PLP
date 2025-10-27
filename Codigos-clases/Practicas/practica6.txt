@@ -1,0 +1,216 @@
+======================================================== Ejercicio 1 ========================================================
+Dados F = {d, f, g}, donde d tiene aridad 0, f aridad 2 y g aridad 3. Cuáles de las siguientes cadenas son términos sobre F?
+
+d con aridad 0 -> es una constante.
+f con aridad 2 -> necesita 2 argumentos => Si t1 y t2 son terminos, entonces f(t1, t2) es un término
+g con aridad 3 -> necesita 3 argumentos => Si t1, t2 y t3 son terminos, entonces f(t1, t2, t3) es un término
+
+i. g(d, d)
+    No es un termino sobre F dado que g tiene aridad 3 pero solo recibe 2 argumentos
+
+ii. f(X, g(Y, Z), d)
+    X, Y y Z son variables
+    No es un termino sobre F dado que f tiene aridad 2 pero recibe 3 argumentos
+    Argumento 1: X (una variable)
+    Argumento 2: g(Y, Z) (un término compuesto)
+    Argumento 3: d (una constante)
+
+iii. g(X, f(d, Z), d)
+    Es un termino sobre F, g tiene aridad 3 y recibe 3 argumentos:
+    Argumento 1: X (una variable)
+    Argumento 2: f(d,Z), f con aridad 2 y recibe 2 argumentos: 
+        Argumento 1': d (una constante (aridad 0))
+        Argumento 2': Z (una variable)
+    Argumento 3:d (una contante (aridad 0))
+
+iv. g(X, h(Y, Z), d)
+    No es un termino sobre F ya que h no pertenece al conjunto de F, mas alla de que g tiene aridad 3 y recibe 3 argumentos
+
+v. f(f(g(d, X), f(g(d, X), Y, g(Y, d)), g(d, d)), g(f(d, d, X), d), Z)
+    No es un termino sobre F ya que ni f ni g reciben la cantidad de argumentos correcta
+
+
+
+======================================================== Ejercicio 2 ========================================================
+Sean c una constante, f un símbolo de función de aridad 1 y S y B, dos símbolos de predicado binarios. Cuáles de las siguientes cadenas son fórmulas?
+
+c es de aridad 0 (contante)
+f toma solo un argumento
+
+Un predicado es un símbolo que NO forma términos, sino que forma fórmulas (proposiciones que pueden ser verdaderas o falsas)
+En este caso, al ser binarios, S y B son de aridad 2
+
+Las formulas pueden ser: (Ejemplos)
+Atomicas
+    S(c,c)
+    B(F(c), X)
+
+Complejas
+    S(c,X) ∧ B(c, f(c))
+    S(c, X) ∨ B(c, f(c))
+
+
+i. S(c, X)        
+    Es una formula, S toma 2 argumentos (una constante y una variable) donde ambos son terminos
+
+ii. B(c, f(c))
+    Es una formula, B es un predicado binario que toma 2 argumentos 
+    (una constante c y un simbolo de funcion f de aridad 1 que tambien toma un argumento),
+    donde ambos son terminos
+
+iii. f(c)
+    No es una formula, es un termino, f es una funcion de aridad 1 que toma como argumento una constante
+
+iv. B(B(c, X), Y)
+    No es una formula, ya que contiene otra formula dentro (con 2 argumentos) y una variable,
+    tal que toma una formula y un termino como argumentos, pero debe tomar 2 terminos como argumentos
+
+v. S(B(c), Z)
+    No es una formula, ya que no solo contiene una formula dentro como argumento (debe contener 2 terminos),
+    sino que ademas B(c) toma un solo termino como argumento, cuando en realidad debe tomar dos (por su aridad)
+
+vi. (B(X, Y) -> (∃Z.S(Z, Y)))                      
+    Es una formula, 
+        B(X, Y) es una formula (aridad 2, toma 2 variables (terminos) como argumentos)
+        ∃Z.S(Z, Y) indica que existe un Z que cumple la formula S (de aridad 2 y toma 2 variables (terminos) como argumentos)
+        Luego, (B(X, Y) -> (∃Z.S(Z, Y))) indica que una formula -> otra formula, y esto tambien es una formula
+
+vii. (S(X, Y) ⇒ S(Y, f(f(X))))
+    Es una formula,
+        S(X, Y) es de aridad 2, y toma 2 variables como argumentos (terminos)
+        S(Y, f(f(X))) es de aridad 2, y toma 1 variable y 1 termino como argumentos
+        f(f(X)) es un termino que toma otro termino como argumento, es de aridad 1
+            y toma a X (una variable) como argumento
+        Luego, (S(X, Y) ⇒ S(Y, f(f(X)))) es una formula que implica otra formula, y esto tambien es una formula
+
+viii. B(X, Y) ⇒ f(X)
+    No es una formula,
+        B(X, Y) es una formula de aridad 2 que toma 2 argumentos
+        f(X) es un termino que toma a X (una variable) como argumento
+        Pero B(X, Y) ⇒ f(X) es una formula que implica un termino, lo cual no hace
+        que sea una formula completa 
+    Los conectivos lógicos solo pueden conectar formulas
+
+ix. S(X, f(Y)) ∧ B(X, Y)
+    Es una formula,
+        S(X, f(Y)) es de aridad 2 y toma 2 argumentos: una variable y un termino de aridad 1 (que toma un solo argumento)
+        B(X, Y) es de aridad 2 y toma 2 argumentos, dos variables, X e Y
+        S(X, f(Y)) ∧ B(X, Y) es la evaluacion de verdad de 2 formulas, que devolvera como resultado otra formula
+
+x. ∀X.B(X, f(X))
+    Es una formula,
+    debe cumplirse que para toda variable X se cumpla B(X, f(X)), que es de aridad 2,
+    y toma 2 argumentos: una variable y un termino f(X) de aridad 1, donde ambos son terminos 
+
+xi. ∃X.B(Y, X(c))
+    No es una formula,
+    B es de aridad 2, pero esta tomando como uno de sus argumentos X(c), que es 
+    un equivalente a querer aplicar una variable sobre una constante, cosa que no es correcta
+
+
+======================================================== Ejercicio 3 ========================================================
+Sea σ = ∃X.P(Y, Z) ∧ ∀Y.¬Q(Y, X) ∨ P(Y, Z)
+i. Identificar todas las variables libres y ligadas
+    En P(Y, Z), Y y Z son variables libres
+    En ¬Q(Y, X), Y y X son variables ligadas (por ∃X y ∀Y)
+    En P(Y, Z), Y y Z son variables libres (Y esta fuera del alcance de ∀Y)  
+
+ii. Calcular σ{X := W}, σ{Y := W}, σ{Y := f(X)} y σ{Z := g(Y, Z)}
+
+    σ = ∃X.P(Y, Z) ∧ ∀Y.¬Q(Y, X) ∨ P(Y, Z)
+
+    σ{X := W}, 
+        σ = ∃X.P(Y, Z) ∧ ∀Y.¬Q(Y, X) ∨ P(Y, Z)
+
+    σ{Y := W}, 
+        σ = ∃X.P(W, Z) ∧ ∀Y.¬Q(Y, X) ∨ P(W, Z)
+
+    σ{Y := f(X)}, 
+        σ = ∃X.P(f(X), Z) ∧ ∀Y.¬Q(Y, X) ∨ P(f(X), Z)
+
+    σ{Z := g(Y, Z)}, 
+        σ = ∃X.P(Y, g(Y, Z)) ∧ ∀Y.¬Q(Y, X) ∨ P(Y, g(Y, Z))
+
+
+======================================================== Ejercicio 5 ========================================================
+Unir con flechas las expresiones que unifican entre sí (entre una fila y la otra). Para cada par unificable, exhibir
+el mgu (most general unifier). Asumir que a es una constante, X, Y, Z son variables, f y g son símbolos de
+función, y P y Q predicados.
+
+P(f(X))     P(a)     P(Y)    Q(X, f(Y))     Q(X, f(Z))      Q(X, f(a))  X           f(X)
+P(X)        P(f(a))  P(g(Z)) Q(f(Y),X)      Q(f(Y), f(X))   Q(f(Y), Y)  f(f(c))     f(g(Y)) 
+
+P(f(X)) -> P(X)
+P(f(X)) -> P(f(a))
+P(a)    -> P(X)
+P(Y)    -> P(X)
+P(Y)    -> P(f(a))
+P(Y)    -> P(g(Z))
+Q(X, f(Y)) -> Q(f(Y), X)
+Q(X, f(Y)) -> Q(X, f(Z))
+Q(X, f(Y)) -> Q(X, f(a))
+Q(X, f(Z)) -> Q(f(Y),X)
+Q(X, f(a)) -> Q(f(Y),X)
+
+
+======================================================== Ejercicio 6 ========================================================
+Determinar, para cada uno de los siguientes pares de términos de primer orden, si son unificables o no. 
+En cada caso justificar su respuesta exhibiendo una secuencia exitosa o fallida (según el caso) del algoritmo de Martelli-Montanari. 
+Asimismo, en caso de que los términos sean unificables indicar el mgu (most general unifier).
+Notación: X, Y, Z variables; a, b, c constantes; f, g símbolos de función.
+
+i. f(X, X, Y) y f(a, b, Z)
+    Entiendo que no, ya que necesitaria que {X := a} y {X := b} al mismo tiempo e {Y := Z}
+    tal que necesito que a == b, pero a y b son 2 constantes distintas entre si 
+
+    Usando Martelli-Montanari:
+    S0 = {f(X, X, Y) = f(a, b, Z)}
+    Aplico decompose
+    S1 = {X = a, X = b, Y = Z}
+    Aplico elim
+    S2 = {X = a, a = b, Y = Z}
+    a = b es absurdo, ya que ambas son constantes pero son distintas entre si
+    => Falla
+
+ii. Y y f(X)
+    Si, son unificables, si tomamos que {Y := f(X)}, MGU = {Y := f(X)}
+
+iii. f(g(c, Y), X) y f(Z, g(Z, a))
+    Son unificables, ambos son de aridad 2 y toman 2 argumentos que son terminos
+    
+    Usando Martelli-Montanari:
+    S0 = {f(g(c, Y), X) = f(Z, g(Z, a))} 
+    Aplico decompose
+    S1 = {g(c, Y) = Z, X = g(Z, a)}
+    Aplico elim
+    S2 = {g(c, Y) = Z, X = g(g(c, Y), a)}
+    Ambas ecuaciones estan en forma resuelta (variable = termino)
+    S2 = {Z = g(c, Y), X = g(g(c, Y), a)}
+    Aplico Occurs-Check
+        Z = g(c, Y)         => Z no aparece en g(c, Y)
+        X = g(g(c, Y), a)   => X no aparece en g(g(c, Y), a)
+    No hay occurs-check violation
+
+    MGU = {Z := g(c, Y), X := g(g(c, Y), a)}
+
+iv. f(a) y g(Y)
+    f y g son 2 terminos distintos, no son unificables
+    S0 = {f(a) = g(Y)}
+    Aplico Clash
+    => Falla, ya que f != g
+
+v. f(X) y X
+    No es unificable, si X := f(X), entonces f(X), con X := f(x), pasa a ser f(f(X)),
+    generando un loop infinito
+    
+    Usando Martelli-Montanari
+    S0 = {f(X) = X}
+    Aplico Swap
+    S0 = {X = f(X)}
+    Aplico Occurs-Check
+    X = f(X)  => X aparece en f(X)
+    => Occurs-Check => Falla
+    
+
+vi. g(X, Y) y g(f(Y), f(X))
+    
