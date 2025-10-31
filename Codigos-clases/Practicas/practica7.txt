@@ -1,0 +1,233 @@
+================================== Ejercicio 1 ================================== 
+Convertir a Forma Normal Conjuntiva y luego a Forma Clausal (notación de conjuntos) las siguientes fórmulas proposicionales
+
+i. P -> P
+    Paso 1: negar o
+        ¬P v P
+
+    Luego, ¬P V P ya esta en FNC (es una disyunción de literales, una sola cláusula)
+    La Forma Clausal de ¬o es: {{¬P, P}}
+    ¬P V P nos da {},
+        Luego, ¬o es insatisfactible
+        Tal que o es valida/tautologia 
+
+
+ii. (P ∧ Q) -> P
+    Niego o: ¬o ≡ ¬(P ∧ Q) v P
+    Empujo ¬ hacia adentro: (¬P v ¬Q) v P
+    
+    Luego, (¬P v ¬Q) v P ya esta en FNC (es una disyuncion de literales)
+    La Forma Clausal de ¬o es: {{¬P, ¬Q, P}}
+    
+    Analizo (¬P v ¬Q) v P:
+        Si tomo ¬P de (¬P v ¬Q), me queda ¬P v P tal que es {}
+        Luego, ¬o es insatisfactible
+        Tal que o es valida/tautologia
+
+iii. (P ∨ Q) ⇒ P
+    Niego o: ¬o ≡ ¬(P ∨ Q) v P
+    Empujo ¬ hacia adentro: (¬P ∧ ¬Q) v P
+    Distribuyo v sobre ∧: (¬P v P) ∧ (P v ¬Q) 
+    
+    Luego, (¬P v P) ∧ (P v ¬Q) ya esta en FNC (es una disyuncion de literales con 2 clausulas)
+    La Forma Clausal de ¬o es: {{¬P,P}, {P, ¬Q}} 
+
+    Analizo (¬P v P) ∧ (P v ¬Q):
+        Observando ¬P v P, obtengo {}
+        Luego, ¬o es insatisfactible
+        Tal que o es valida/tautologia
+
+iv. ¬(P <-> ¬P)
+    
+    Niego o: ¬o ≡ ¬¬(P <-> ¬P) ≡ (P <-> ¬P) 
+        ≡ (P -> ¬P) ∧ (¬P -> P)
+
+    Me deshago del conectivo -> :
+        (¬P v ¬P) ∧ (¬¬P v P)
+    
+    Luego, (¬P v ¬P) ∧ (P v P) ya esta en FNC (es una disyuncion de literales con 2 clausulas) 
+    La forma clausal de ¬o es: {{¬P}, {P}}
+
+    Analizando ¬P ∧ P:
+        - ¬P se cumple <-> P es falso
+        - P se cumple <-> P es verdadero
+        No hay asignacion que satisfaga ambas, obtengo {}
+        Luego, ¬o es insatisfactible
+        Tal que o es valida
+
+v. ¬(P ∧ Q) -> (¬P ∨ ¬Q)
+    
+    Niego o: ¬(¬(P ∧ Q) -> (¬P ∨ ¬Q))
+        ¬(P ∧ Q) ∧ ¬(¬P ∨ ¬Q), por ¬(A -> B) equiv A ∧ ¬B
+    Empujo ¬ hacia adentro
+        (¬P v ¬Q) ∧ P ∧ Q
+
+    La forma clausal de ¬o es {{¬P, ¬Q}, {P}, {Q}}
+
+    Analizando (¬P v ¬Q) ∧ P ∧ Q
+    {P}: P debe ser verdadero
+    {Q}: Q debe ser verdadero
+    {¬P v ¬Q}:  Si tomo ¬P, me queda ¬P ∧ P ∧ Q == {} ∧ Q
+                Si tomo ¬Q, me queda ¬Q ∧ P ∧ Q == {} ∧ P
+    Luego, ¬o es insatisfactible
+    Tal que o es valida
+
+vi. (P ∧ Q) ∨ (P ∧ R)
+
+    Niego o: ¬[(P ∧ Q) ∨ (P ∧ R)]
+    por De Morgan, ¬(P ∧ Q) ∧ ¬(P ∧ R)
+
+    Empujo la ¬ hacia adentro:
+        (¬P v ¬Q) ∧ (¬P v ¬R)
+    Luego, (¬P v ¬Q) ∧ (¬P v ¬R) esta en FNC
+    
+    La forma clausal de ¬o es: {{¬P, ¬Q}, {¬P, ¬R}}
+    Analizando (¬P v ¬Q) ∧ (¬P v ¬R):
+        {¬P, ¬Q}: al menos uno debe ser verdadero
+        {¬P, ¬R}: al menos uno debe ser verdadero
+
+    No hay forma de combinar las clausulas tal que obtenga {}
+    Luego, ¬o es satisfactible
+    Tal que o es invalida
+
+vii. (P ∧ Q) -> R
+    Niego o: 
+        ¬((P ∧ Q) -> R)
+    Me deshago de "->": 
+        ¬(¬(P ∧ Q) v R)
+    Empujo ¬ hacia adentro:
+        ¬((¬P ∧ ¬Q) v R)
+        (P ∧ Q) ∧ ¬R
+
+    Analizando (P ∧ Q) ∧ ¬R:
+        {P}: P debe ser verdadero
+        {Q}: Q debe ser verdadero
+        {¬R}: R debe ser falso
+        
+        Con P=V, Q=V, R=F se satisfacen todas las clausulas
+        No se encuentran combinaciones de clausulas que me permitan obtener {}
+        Luego, ¬o es satisfactible
+        Tal que o es invalida
+
+viii. P -> (Q -> R)
+    Niego o:
+        ¬(P -> (Q -> R))
+    Me deshago de los conectivos -> :
+        ¬(¬P v (¬Q v R))
+    Empujo ¬ hacia adentro:
+        ¬¬P ∧ ¬(¬Q v R)
+        P ∧ (¬¬Q ∧ ¬R)
+        P ∧ (Q ∧ ¬R)
+    Luego, P ∧ (Q ∧ ¬R) esta en FNC
+    La Forma Clausal de ¬o es: {{P}, {Q}, {¬R}} 
+
+    Analizando P ∧ (Q ∧ ¬R):
+        {P}: P debe ser verdadero
+        {Q}: Q debe ser verdadero
+        {¬R}: R debe ser falso
+    Con P=V, Q=V, R=F se satisfacen todas las clausulas
+    No se encuentran combinaciones de clausulas que me permitan obtener {}
+    Luego, ¬o es satisfactible
+    Tal que o es invalida
+
+
+================================== Ejercicio 2 ================================== 
+i. Cuáles de las fórmulas del ejercicio anterior son tautologías? 
+Demostrarlas utilizando el método de resolución para la lógica proposicional. 
+Para las demás, indicar qué pasa si se intenta demostrarlas usando este método.
+
+    Hecho en ej 1
+
+ii. Se deduce (P ∧ Q) de (¬P -> Q) ∧ (P -> Q) ∧ (¬P -> ¬Q)?
+Contestar utilizando el método de resolución para la lógica proposicional.
+
+Busco demostrarlo negando (P ∧ Q) para poder utilizar el método de resolución para lógica proposicional
+
+Niego (P ∧ Q) y lo agrego a las premisas: 
+
+(¬P -> Q) ∧ (P -> Q) ∧ (¬P -> ¬Q) ∧ ¬(P ∧ Q)
+
+Paso 1: Deshacerse de -> :
+    (¬¬P v Q) ∧ (¬P v Q) ∧ (¬¬P v ¬Q) ∧ ¬(P ∧ Q)
+
+Paso 2: empujo ¬ hacia adentro:
+    (P v Q) ∧ (¬P v Q) ∧ (P v ¬Q) ∧ (¬P v ¬Q)
+Luego, obtengo una FNC con 4 clausulas
+
+La Forma Clausal de ¬o es: {{P,Q}, {¬P,Q}, {P, ¬Q}, {¬P, ¬Q}}
+
+Analizando (P v Q) ∧ (¬P v Q) ∧ (P v ¬Q) ∧ (¬P v ¬Q):
+    1. {P, Q}
+    2. {¬P,Q}
+    3. {P, ¬Q}
+    4. {¬P, ¬Q}
+    
+    Uniendo 1 con 2 obtengo 5: {Q}
+    Uniendo 3 y 4 obtengo 6: {¬Q}
+    Uniendo 5 y 6 obtengo 7: {}
+    
+    Obtuve {}, tal que Premisas ∧ ¬Conclusión es insatisfactible
+    Luego, se deduce (P ∧ Q) de (¬P -> Q) ∧ (P -> Q) ∧ (¬P -> ¬Q)
+
+
+
+==== 4 ====
+Utilizar las siguientes proposiciones para demostrar - mediante el método de 
+resolución - que el pronóstico se equivocó (anunció lluvia y no llovió, o viceversa).
+P = "El pronóstico anunció lluvia."
+F = "El grupo se reúne en la casa de Fabiana."
+M = "El grupo se reúne en la casa de Manuel."
+L = "Llueve en el día de la reunión."
+
+¬(F ∧ M) ∧ (P -> F) ∧ (¬P -> M) ∧ [(¬P ∧ L) v (P ∧ ¬L)]
+
+Niego o: 
+    ¬(¬(F ∧ M) ∧ (P -> F) ∧ (¬P -> M) ∧ [(¬P ∧ L) v (P ∧ ¬L)])
+    ¬¬(F ∧ M) v ¬(P -> F) v ¬(¬P -> M) v ¬[(¬P ∧ L) v (P ∧ ¬L)]
+    (F ∧ M) v ¬(P -> F) v ¬(¬P -> M) v [¬(¬P ∧ L) ∧ ¬(P ∧ ¬L)]
+
+Me deshago de -->
+    (F ∧ M) v ¬(¬P v F) v ¬(¬¬P v M) v [¬(¬P ∧ L) ∧ ¬(P ∧ ¬L)]
+
+Empujo el conectivo ¬ hacia adentro
+    (F ∧ M) v (¬¬P ∧ ¬F) v (¬P ∧ ¬M) v [(¬¬P v ¬L) ∧ (¬P v ¬¬L)]
+    (F ∧ M) v (P ∧ ¬F) v (¬P ∧ ¬M) v [(P v ¬L) ∧ (¬P v L)]
+
+Distribuyo v sobre ∧
+    (F ∧ M) v (P ∧ ¬F) v (¬P ∧ ¬M) v [(P v ¬L) ∧ (¬P v L)]
+
+    Comienzo distribuyendo (F ∧ M) v (P ∧ ¬F):
+    (F v P) ∧ (F v ¬F) ∧ (M v P) ∧ (M v ¬F)
+
+    Luego, distribuyo lo obtenido con "v (¬P ∧ ¬M)":
+    (F v P v ¬P) ∧ (F v P v ¬M) ∧
+    (F v ¬F v ¬P) ∧ (F v ¬F v ¬M) ∧
+    (M v P v ¬P) ∧ (M v P v ¬M) ∧
+    (M v ¬F v ¬P) ∧ (M v ¬F v ¬M)
+
+    Elimino las tautologias, tal que me quedan las clausulas:
+    (F v P v ¬M) ∧ (M v ¬F v ¬P)
+
+    Ahora, combino (F v P v ¬M) ∧ (M v ¬F v ¬P) con [(P v ¬L) ∧ (¬P v L)]:
+    (F v P v ¬M v P v ¬L) ∧
+    (F v P v ¬M v ¬P v L) ∧
+    (M v ¬F v ¬P v P v ¬L) ∧
+    (M v ¬F v ¬P v ¬P v L)
+
+    Eliminando las tautologias que hay en las clausulas, obtengo:
+    (F v P v ¬M v P v ¬L) ∧ (M v ¬F v ¬P v ¬P v L)
+
+    Eliminando duplicados:
+    (F v P v ¬M v ¬L) ∧ (M v ¬F v ¬P v L)
+
+    Que cumple con ser la FNC
+
+    La forma clausal es: {{F, P, ¬M, ¬L}, {M, ¬F, ¬P, L}}
+
+    Analizando (F v P v ¬M v ¬L) ∧ (M v ¬F v ¬P v L)
+    1: {F, P, ¬M, ¬L}
+    2: {M, ¬F, ¬P, L}
+    Uniendo 1 con 2 obtengo 3: {}
+
+    Luego, ¬o es insatisfactible
+    Tal que o es valida
