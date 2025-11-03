@@ -34,14 +34,22 @@ matriz(F, C, M) :-
 
 
 % Ejercicio 2
-
 replicar(X, N, L) :-
 	length(L, N),					% Crea lista de N variables
 	maplist(asignar_valor(X), L).	% Relaciona cada elemento de L con X
 									% Equivalente a asignar el valor X en cada posicion de L
 
 % Ejercicio 3
-transponer(_, _) :- completar("Ejercicio 3").
+transponer(_, _) :- 
+	M = [_ | _],					% Valida que M no sea vacío
+	M = [FilaActual | _],			% Obtiene la primer fila a analizar de la matriz
+	length(FilaActual, CantCols),	% Calcula la #columnas que tiene la fila
+	findall(						
+		Col,						
+		(between(1, CantCols, C),	% Itera sobre todas las columnas C
+		maplist(nth1(C), M, Col)),	% Obtiene la columna C de M 
+		MT							% Y junta todas las columnas que luego las guarda en MT
+	).
 
 % Predicado dado armarNono/3
 armarNono(RF, RC, nono(M, RS)) :-
