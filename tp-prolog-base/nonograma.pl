@@ -1,24 +1,26 @@
 % Ejercicio 1
-/* Definimos un predicado auxiliar que nos crea una lista con N elementos 
-de tipo "_" (lo que es equivalente a que estén sin asignar).
+/* 
+Definimos predicados auxiliares que nos modifican elementos o listas 
+con N elementos de tipo "_" (lo que es equivalente a que estén sin asignar).
 */
-len_lista(N, Lista) :- length(Lista, N).
+asignar_valor(X, X).						% Asigna un valor en el lugar de otro ya existente
+asignar_lista(C, Fila) :- length(Fila, C).	% Asigna los valores de C a una lista
 
 matriz(F, C, M) :-
-    len_lista(F, M),						% Creamos una lista M de longitud F (con variables sin asignar)
-    maplist(len_lista(C), M).				% Aplica len_lista(C) a cada elemento de M
+    length(M, F),							% Crea una lista M de longitud F (con variables sin asignar)
+    maplist(asignar_lista(C), M).			% Asigna los C valores a cada elemento de M
 											% Equivalente a llenar con C elementos del tipo "_"
 											% cada fila de M 
 
 /* 	Usando el ejemplo del enunciado del TP, 
 	el predicado aplicado paso a paso queda:
 	
-	len_lista(2, M) -> M = [_, _]
-	maplist(len_lista(3), [_, _])
-		* aplicamos len_lista(3) al primer elemento: len_lista(3, _) -> _ = [_, _, _]
-		* misma aplicación para el segundo elemento: len_lista(3, _) -> _ = [_, _, _]
+	length(M, 2) -> M = [_, _]
+	maplist(asignar_lista(3), [_, _])
+		* Aplicamos asignar_lista(3) al primer elemento: len_lista(3, _) -> _ = [_, _, _]
+		* Misma aplicación para el segundo elemento: len_lista(3, _) -> _ = [_, _, _]
 
-	finalmente, nos queda una matriz M de la forma: [[_, _, _], [_, _, _]]
+	Finalmente, nos queda una matriz M de la forma: [[_, _, _], [_, _, _]]
 
 	Por otro lado, la aplicación de nth1 funciona de la sig. manera:
 		matriz(2, 3, M), --> Crea la matriz de 2x3 
@@ -32,7 +34,10 @@ matriz(F, C, M) :-
 
 
 % Ejercicio 2
-replicar(X, N, L) :- completar("Ejercicio 2").
+
+replicar(X, N, L) :-
+	length(L, N),					% Crea lista de N variables
+	maplist(asignar_valor(X), L).	% Relaciona cada elemento de L con X
 
 % Ejercicio 3
 transponer(_, _) :- completar("Ejercicio 3").
