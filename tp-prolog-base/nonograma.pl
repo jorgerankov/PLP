@@ -1,5 +1,3 @@
-
-
 % Ejercicio 1
 matriz(F, C, M) :- completar("Ejercicio 1").
 
