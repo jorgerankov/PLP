@@ -1,5 +1,35 @@
 % Ejercicio 1
-matriz(F, C, M) :- completar("Ejercicio 1").
+/* Definimos un predicado auxiliar que nos crea una lista con N elementos 
+de tipo "_" (lo que es equivalente a que estén sin asignar).
+*/
+len_lista(N, Lista) :- length(Lista, N).
+
+matriz(F, C, M) :-
+    len_lista(F, M),						% Creamos una lista M de longitud F (con variables sin asignar)
+    maplist(len_lista(C), M).				% Aplica len_lista(C) a cada elemento de M
+											% Equivalente a llenar con C elementos del tipo "_"
+											% cada fila de M 
+
+/* 	Usando el ejemplo del enunciado del TP, 
+	el predicado aplicado paso a paso queda:
+	
+	len_lista(2, M) -> M = [_, _]
+	maplist(len_lista(3), [_, _])
+		* aplicamos len_lista(3) al primer elemento: len_lista(3, _) -> _ = [_, _, _]
+		* misma aplicación para el segundo elemento: len_lista(3, _) -> _ = [_, _, _]
+
+	finalmente, nos queda una matriz M de la forma: [[_, _, _], [_, _, _]]
+
+	Por otro lado, la aplicación de nth1 funciona de la sig. manera:
+		matriz(2, 3, M), --> Crea la matriz de 2x3 
+		nth1(1, M, F1),	 --> Accede a la primer fila de la matriz M, y la denomina F1
+		nth1(2, F1, x).	 --> Accede al segundo elemento de F1 y lo "pinta" con una x
+	
+	Luego, el resultado queda de la sig. forma:
+		M = [[_A, x, _B], [_, _, _]],
+		F1 = [_A, x, _B].
+*/
+
 
 % Ejercicio 2
 replicar(X, N, L) :- completar("Ejercicio 2").
