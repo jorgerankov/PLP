@@ -38,6 +38,7 @@ matriz(F, C, M) :-
 replicar(X, N, L) :-
 	length(L, N),					% Crea lista de N variables
 	maplist(asignar_valor(X), L).	% Relaciona cada elemento de L con X
+									% Equivalente a asignar el valor X en cada posicion de L
 
 % Ejercicio 3
 transponer(_, _) :- completar("Ejercicio 3").
