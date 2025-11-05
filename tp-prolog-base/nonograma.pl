@@ -64,8 +64,12 @@ armarNono(RF, RC, nono(M, RS)) :-
 zipR([], [], []).
 zipR([R|RT], [L|LT], [r(R,L)|T]) :- zipR(RT, LT, T).
 
-% Ejercicio 4
-pintadasValidas(_) :- completar("Ejercicio 4").
+% Ejercicio 4 (Falta completar)
+pintadasValidas(_) :- 
+	length(Celdas, N),
+	nth1(1, R, Res),
+	nth1(2, R, Celdas),
+	armarNono(Res, _, NN).
 
 % Ejercicio 5
 resolverNaive(_) :-  completar("Ejercicio 5").
