@@ -19,7 +19,12 @@
 		M = [[_A, x, _B], [_, _, _]],
 		F1 = [_A, x, _B].
 */
-
+% Ejercicio 1
+matriz(F, C, M) :-
+    length(M, F),							% Crea una lista M de longitud F (con variables sin asignar)
+    maplist(asignar_lista(C), M).			% Asigna los C valores a cada elemento de M
+											% Equivalente a llenar con C elementos del tipo "_"
+											% cada fila de M 
 % Ejercicio 2
 replicar(X, N, L) :-
 	length(L, N),					% Crea lista L de N variables
@@ -64,12 +69,52 @@ pintadasValidas(r(Restricciones, Celdas)) :-
 % 	M = matriz de celdas
 % 	RS = lista de restricciones (filas + columnas)
 resolverNaive(nono(M, RS)) :-
-	maplist(pintadasValidas, RS).
+    length(M, F),
+    length(RSFilas, F),
+    append(RSFilas, RSColumnas, RS),
+    % Resuelve filas de forma determinística
+    maplist(resolver_restriccion_det, RSFilas),
+    transponer(M, Mt),
+    maplist(resolver_restriccion_det, RSColumnas).
 
-% Prueba todas las combinaciones hasta encontrar una válida para TODAS las restricciones
+% Resuelve UNA restricción de forma determinística (sin backtracking)
+resolver_restriccion_det(r(Restricciones, Celdas)) :-
+    length(Celdas, N),
+    findall(Sol,
+        (llenar_n_celdas(N, Sol),
+         validar_restriccion(Restricciones, Sol)),
+        [Primera|_]),  % ← Extrae solo la PRIMERA solución
+    Celdas = Primera.
 
 % Ejercicio 6
-pintarObligatorias(_) :- completar("Ejercicio 6").
+pintarObligatorias(r(Restricciones, Celdas)) :- 
+	length(Celdas, N),
+	findall(Combinacion,
+		(llenar_n_celdas(N, Combinacion),
+		validar_restriccion(Restricciones, Combinacion)),
+		Soluciones),
+	( 	Soluciones = [] -> maplist(=(o), Celdas);
+		pintarCeldasIguales(Celdas, Soluciones, 0)
+	).
+
+pintarCeldasIguales([], _, _).
+pintarCeldasIguales([Celda|Resto], Soluciones, I) :-
+	findall(Valor, (member(Sol, Soluciones), nth0(I, Sol, Valor)), Valores),
+	esObligatoria(Celda, Valores),
+	I1 is I + 1,
+	pintarCeldasIguales(Resto, Soluciones, I1).
+
+% Si todos los valores en Valores son iguales, pintar Celda con ese valor
+% Si varian, dejar Celda sin pintar
+esObligatoria(Celda, [Valor|Resto]) :-
+	todosIguales(Valor, Resto), !,
+	Celda = Valor.
+esObligatoria(_, _).
+
+% Verificar que todos los elems de una lista sean iguales a X
+todosIguales(_, []).
+todosIguales(X, [X|T]) :-
+	todosIguales(X, T).
 
 % Predicado dado combinarCelda/3
 combinarCelda(A, B, _) :- var(A), var(B).
@@ -79,7 +124,8 @@ combinarCelda(A, B, A) :- nonvar(A), nonvar(B), A = B.
 combinarCelda(A, B, _) :- nonvar(A), nonvar(B), A \== B.
 
 % Ejercicio 7
-deducir1Pasada(_) :- completar("Ejercicio 7").
+deducir1Pasada(nono(_, RS)) :- 
+	maplist(pintarObligatorias, RS).
 
 % Predicado dado
 cantidadVariablesLibres(T, N) :- term_variables(T, LV), length(LV, N).
@@ -103,9 +149,8 @@ restriccionConMenosLibres(_, _) :- completar("Ejercicio 8").
 resolverDeduciendo(NN) :- completar("Ejercicio 9").
 
 % Ejercicio 10
-solucionUnica(NN) :- completar("Ejercicio 10").
-
-
+solucionUnica(NN) :- 
+	findall(_, resolverNaive(NN), [_]).
 
 % ====== Funciones Auxiliares ======
 asignar_valor(X, X).						% Asigna un valor X en el lugar de otro ya existente
@@ -126,25 +171,26 @@ llenar_n_celdas(N, [Celda | Resto]) :-
 	llenar_celda(Celda),					% Asigna x u o a Celda
 	llenar_n_celdas(N1, Resto).				% Recursión con N-1
 
-% Se extraen bloques de forma recursiva
-extraer_bloques([], []) :- !.				% CB: Sin celdas = Sin bloques
-extraer_bloques([o | Resto], Bloques) :-	% Si encontramos 'o':
-	!,										% Corta el predicado
-	extraer_bloques(Resto, Bloques).		% Sino, ignora 'o' y sigue
-extraer_bloques([x | Resto], [Largo | BloquesResto]) :-	% Si encuentra 'x'
-	contar_xs([x | Resto], Largo, RestoSinBloque),		% Cuenta cuantas 'x' hay
-	extraer_bloques(RestoSinBloque, BloquesResto).		% Continua con el resto
+extraerBloques(Celdas, Bloques) :-
+	extraerBloquesBis(Celdas, Bloques).
 
+extraerBloquesBis([], []).				% CB: Sin celdas = Sin bloques
+extraerBloquesBis([o|T], Bloques) :-	% Si encontramos 'o':
+	extraerBloquesBis(T, Bloques).		% Sino, ignora 'o' y sigue
+extraerBloquesBis([x|T], [Largo | Bloques]) :-	% Si encuentra 'x'
+	buscarRachasDeX(T, 1, Largo, Resto),		% Cuenta cuantas 'x' hay
+	extraerBloquesBis(Resto, Bloques).		% Continua con el resto
+ 
 % Cuenta x consecutivas
-contar_xs([x | Resto], Largo, RestoFinal) :-	% Si hay 'x'
-	contar_xs(Resto, LargoResto, RestoFinal),	% Cuenta el resto recursivamente
-	Largo is LargoResto + 1.					% +1 al total de elems encontrados
-contar_xs([o | Resto], 0, [o | Resto]) :- !.	% Corta en 'o' -> Largo = 0
-contar_xs([], 0, []) :- !.						% Corta al final -> Largo = 0
+buscarRachasDeX([x|T], Contador, N, Resto) :-	% Si hay 'x'
+	C1 is Contador + 1,	% Cuenta el resto recursivamente
+	buscarRachasDeX(T, C1, N, Resto).
+buscarRachasDeX(Resto, Contador, Contador, Resto) :-	% Corta en 'o' -> Largo = 0
+	(Resto = []; Resto = [o|_]).					% Corta al final -> Largo = 0
 
 % Valida que se cumpla la restriccion dada en cada bloque obtenido
 validar_restriccion(Restricciones, Celdas) :-
-	extraer_bloques(Celdas, Bloques),		% Extrae bloques de Celdas
+	extraerBloques(Celdas, Bloques),		% Extrae bloques de Celdas
 	Bloques = Restricciones.				% Los bloques deben ser iguales a Restricciones
 
 % Para eliminar duplicados, usamos el predicado de Prolog "sort".
@@ -227,3 +273,6 @@ mostrarFila(Fila) :-
 mostrarCelda(C) :- nonvar(C), C = x, write('██').
 mostrarCelda(C) :- nonvar(C), C = o, write('░░').
 mostrarCelda(C) :- var(C), write('¿?').
+
+
+tam(N, (F, C)) :- nn(N, nono(M, _)), matriz(F, C, M).
