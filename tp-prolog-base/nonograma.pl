@@ -27,15 +27,15 @@ replicar(X, N, L) :-
 									% Lo que unifica cada valor con X en cada posicion de L
 
 % Ejercicio 3
-transponer(_, _) :- 
-	M = [_ | _],					% Valida que M no sea vacío
-	M = [FilaActual | _],			% Extrae la primer fila a analizar de la matriz
-	length(FilaActual, CantCols),	% Cuenta la #columnas que tiene la fila
-	findall(						% Toma todas las columnas
-		Col,						% Y las define como Col
-		(between(1, CantCols, C),	% Itera sobre todas las columnas C
-		maplist(nth1(C), M, Col)),	% Obtiene la columna C-ésima de M 
-		MT							% Retorna MT = lista de columnas = transpuesta
+transponer(M, MT) :- 
+	M = [_ | _],
+	M = [Fila | _],
+	length(Fila, NumCols),
+	findall(
+		Columna,
+		(between(1, NumCols, C),
+		maplist(nth1(C), M, Columna)),
+		MT
 	).
 
 % Predicado dado armarNono/3
@@ -56,18 +56,17 @@ zipR([R|RT], [L|LT], [r(R,L)|T]) :- zipR(RT, LT, T).
 % Busca unificar Celdas con todas las posibles soluciones
 pintadasValidas(r(Restricciones, Celdas)) :- 
 	length(Celdas, N),							% N = número de celdas
-	findall(CeldasPintadas,						% Busca todas las posibles combinaciones
-		(	
-			llenar_n_celdas(N, CeldasPintadas),					% Genera combinación con x/o
-			validar_restriccion(Restricciones, CeldasPintadas)	% Verifica que cumpla la restricción
-		),
-		SolucionesRestringidas		% Guarda todas las soluciones encontradas (Las que cumplan las restricciones)
-	),
-	sort(SolucionesRestringidas, Soluciones),	% Elimina duplicados
-	member(Celdas, Soluciones).					% Unifica Celdas con c/ solución 
+	llenar_n_celdas(N, Celdas),					% Genera combinación con x/o
+	validar_restriccion(Restricciones, Celdas).	% Verifica que cumpla la restricción
 
 % Ejercicio 5
-resolverNaive(_) :-  completar("Ejercicio 5").
+% El nonograma (NN) tiene la estructura:
+% 	M = matriz de celdas
+% 	RS = lista de restricciones (filas + columnas)
+resolverNaive(nono(M, RS)) :-
+	maplist(pintadasValidas, RS).
+
+% Prueba todas las combinaciones hasta encontrar una válida para TODAS las restricciones
 
 % Ejercicio 6
 pintarObligatorias(_) :- completar("Ejercicio 6").
