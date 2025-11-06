@@ -1,16 +1,4 @@
 % Ejercicio 1
-/* 
-Definimos predicados auxiliares que nos modifican elementos o listas 
-con N elementos de tipo "_" (lo que es equivalente a que estén sin asignar).
-*/
-asignar_valor(X, X).						% Asigna un valor en el lugar de otro ya existente
-asignar_lista(C, Fila) :- length(Fila, C).	% Asigna los valores de C a una lista
-
-matriz(F, C, M) :-
-    length(M, F),							% Crea una lista M de longitud F (con variables sin asignar)
-    maplist(asignar_lista(C), M).			% Asigna los C valores a cada elemento de M
-											% Equivalente a llenar con C elementos del tipo "_"
-											% cada fila de M 
 
 /* 	Usando el ejemplo del enunciado del TP, 
 	el predicado aplicado paso a paso queda:
@@ -32,23 +20,22 @@ matriz(F, C, M) :-
 		F1 = [_A, x, _B].
 */
 
-
 % Ejercicio 2
 replicar(X, N, L) :-
-	length(L, N),					% Crea lista de N variables
+	length(L, N),					% Crea lista L de N variables
 	maplist(asignar_valor(X), L).	% Relaciona cada elemento de L con X
-									% Equivalente a asignar el valor X en cada posicion de L
+									% Lo que unifica cada valor con X en cada posicion de L
 
 % Ejercicio 3
 transponer(_, _) :- 
 	M = [_ | _],					% Valida que M no sea vacío
-	M = [FilaActual | _],			% Obtiene la primer fila a analizar de la matriz
-	length(FilaActual, CantCols),	% Calcula la #columnas que tiene la fila
-	findall(						
-		Col,						
+	M = [FilaActual | _],			% Extrae la primer fila a analizar de la matriz
+	length(FilaActual, CantCols),	% Cuenta la #columnas que tiene la fila
+	findall(						% Toma todas las columnas
+		Col,						% Y las define como Col
 		(between(1, CantCols, C),	% Itera sobre todas las columnas C
-		maplist(nth1(C), M, Col)),	% Obtiene la columna C de M 
-		MT							% Y junta todas las columnas que luego las guarda en MT
+		maplist(nth1(C), M, Col)),	% Obtiene la columna C-ésima de M 
+		MT							% Retorna MT = lista de columnas = transpuesta
 	).
 
 % Predicado dado armarNono/3
@@ -64,12 +51,20 @@ armarNono(RF, RC, nono(M, RS)) :-
 zipR([], [], []).
 zipR([R|RT], [L|LT], [r(R,L)|T]) :- zipR(RT, LT, T).
 
-% Ejercicio 4 (Falta completar)
-pintadasValidas(_) :- 
-	length(Celdas, N),
-	nth1(1, R, Res),
-	nth1(2, R, Celdas),
-	armarNono(Res, _, NN).
+% Ejercicio 4
+% R es de la forma r(Restricciones, Celdas)
+% Busca unificar Celdas con todas las posibles soluciones
+pintadasValidas(r(Restricciones, Celdas)) :- 
+	length(Celdas, N),							% N = número de celdas
+	findall(CeldasPintadas,						% Busca todas las posibles combinaciones
+		(	
+			llenar_n_celdas(N, CeldasPintadas),					% Genera combinación con x/o
+			validar_restriccion(Restricciones, CeldasPintadas)	% Verifica que cumpla la restricción
+		),
+		SolucionesRestringidas		% Guarda todas las soluciones encontradas (Las que cumplan las restricciones)
+	),
+	sort(SolucionesRestringidas, Soluciones),	% Elimina duplicados
+	member(Celdas, Soluciones).					% Unifica Celdas con c/ solución 
 
 % Ejercicio 5
 resolverNaive(_) :-  completar("Ejercicio 5").
@@ -110,6 +105,50 @@ resolverDeduciendo(NN) :- completar("Ejercicio 9").
 
 % Ejercicio 10
 solucionUnica(NN) :- completar("Ejercicio 10").
+
+
+
+% ====== Funciones Auxiliares ======
+asignar_valor(X, X).						% Asigna un valor X en el lugar de otro ya existente
+
+asignar_lista(C, Fila) :- length(Fila, C).	% Asigna los valores de C a una lista
+
+matriz(F, C, M) :-
+    length(M, F),							% Crea una lista M de longitud F (con variables sin asignar)
+    maplist(asignar_lista(C), M).			% Asigna los C valores a cada elemento de M
+
+llenar_celda(X) :- member(X, [x, o]). 		% Asigna a X el valor x (pintada) u o (sin pintar) para una celda
+
+% Llenar N celdas con x/o recursivamente
+llenar_n_celdas(0, []) :- !.				% CB, 0 celdas = lista vacía
+llenar_n_celdas(N, [Celda | Resto]) :-
+	N > 0,									% N debe ser positivo
+	N1 is N - 1,							% Decrementa N en 1
+	llenar_celda(Celda),					% Asigna x u o a Celda
+	llenar_n_celdas(N1, Resto).				% Recursión con N-1
+
+% Se extraen bloques de forma recursiva
+extraer_bloques([], []) :- !.				% CB: Sin celdas = Sin bloques
+extraer_bloques([o | Resto], Bloques) :-	% Si encontramos 'o':
+	!,										% Corta el predicado
+	extraer_bloques(Resto, Bloques).		% Sino, ignora 'o' y sigue
+extraer_bloques([x | Resto], [Largo | BloquesResto]) :-	% Si encuentra 'x'
+	contar_xs([x | Resto], Largo, RestoSinBloque),		% Cuenta cuantas 'x' hay
+	extraer_bloques(RestoSinBloque, BloquesResto).		% Continua con el resto
+
+% Cuenta x consecutivas
+contar_xs([x | Resto], Largo, RestoFinal) :-	% Si hay 'x'
+	contar_xs(Resto, LargoResto, RestoFinal),	% Cuenta el resto recursivamente
+	Largo is LargoResto + 1.					% +1 al total de elems encontrados
+contar_xs([o | Resto], 0, [o | Resto]) :- !.	% Corta en 'o' -> Largo = 0
+contar_xs([], 0, []) :- !.						% Corta al final -> Largo = 0
+
+% Valida que se cumpla la restriccion dada en cada bloque obtenido
+validar_restriccion(Restricciones, Celdas) :-
+	extraer_bloques(Celdas, Bloques),		% Extrae bloques de Celdas
+	Bloques = Restricciones.				% Los bloques deben ser iguales a Restricciones
+
+% Para eliminar duplicados, usamos el predicado de Prolog "sort".
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                              %
