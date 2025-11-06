@@ -22,15 +22,14 @@
 % Ejercicio 1
 matriz(F, C, M) :-
     length(M, F),							% Crea una lista M de longitud F (con variables sin asignar)
-    maplist(asignar_lista(C), M).			% Asigna los C valores a cada elemento de M
+    maplist(asignar_lista(C), M).				% Asigna los C valores a cada elemento de M
 											% Equivalente a llenar con C elementos del tipo "_"
 											% cada fila de M 
 % Ejercicio 2
 replicar(X, N, L) :-
 	length(L, N),					% Crea lista L de N variables
-	maplist(asignar_valor(X), L).	% Relaciona cada elemento de L con X
-									% Lo que unifica cada valor con X en cada posicion de L
-
+	maplist(=(X), L).				% =(X) unifica cada elemento de L con X
+									% Es un predicado built-in que funciona: =(X, A) → A = X
 % Ejercicio 3
 transponer(M, MT) :- 
 	M = [_ | _],
@@ -60,9 +59,8 @@ zipR([R|RT], [L|LT], [r(R,L)|T]) :- zipR(RT, LT, T).
 % R es de la forma r(Restricciones, Celdas)
 % Busca unificar Celdas con todas las posibles soluciones
 pintadasValidas(r(Restricciones, Celdas)) :- 
-	length(Celdas, N),							% N = número de celdas
-	llenar_n_celdas(N, Celdas),					% Genera combinación con x/o
-	validar_restriccion(Restricciones, Celdas).	% Verifica que cumpla la restricción
+	maplist(llenar_celda, Celdas),					% Llena (pinta) cada celda
+	validar_restriccion(Restricciones, Celdas).
 
 % Ejercicio 5
 % El nonograma (NN) tiene la estructura:
@@ -77,44 +75,33 @@ resolverNaive(nono(M, RS)) :-
     transponer(M, Mt),
     maplist(resolver_restriccion_det, RSColumnas).
 
-% Resuelve UNA restricción de forma determinística (sin backtracking)
+% Resuelve una restricción de forma determinística (sin backtracking)
 resolver_restriccion_det(r(Restricciones, Celdas)) :-
     length(Celdas, N),
-    findall(Sol,
-        (llenar_n_celdas(N, Sol),
-         validar_restriccion(Restricciones, Sol)),
-        [Primera|_]),  % ← Extrae solo la PRIMERA solución
+    findall(
+		Sol,
+        (maplist(llenar_celda, Sol),
+        validar_restriccion(Restricciones, Sol)),
+        [Primera|_]
+	),  % Extrae solo la primer solución
     Celdas = Primera.
 
 % Ejercicio 6
 pintarObligatorias(r(Restricciones, Celdas)) :- 
 	length(Celdas, N),
 	findall(Combinacion,
-		(llenar_n_celdas(N, Combinacion),
+		(maplist(llenar_celda, Combinacion),
 		validar_restriccion(Restricciones, Combinacion)),
 		Soluciones),
-	( 	Soluciones = [] -> maplist(=(o), Celdas);
-		pintarCeldasIguales(Celdas, Soluciones, 0)
+	(Soluciones = [] -> maplist(=(o), Celdas);
+	transponer(Soluciones, Columnas),
+	maplist(pintar_celda, Celdas, Columnas)
 	).
 
-pintarCeldasIguales([], _, _).
-pintarCeldasIguales([Celda|Resto], Soluciones, I) :-
-	findall(Valor, (member(Sol, Soluciones), nth0(I, Sol, Valor)), Valores),
-	esObligatoria(Celda, Valores),
-	I1 is I + 1,
-	pintarCeldasIguales(Resto, Soluciones, I1).
-
-% Si todos los valores en Valores son iguales, pintar Celda con ese valor
-% Si varian, dejar Celda sin pintar
-esObligatoria(Celda, [Valor|Resto]) :-
-	todosIguales(Valor, Resto), !,
+pintar_celda(Celda, Valores) :-
+	msort(Valores, [Valor]), !,
 	Celda = Valor.
-esObligatoria(_, _).
-
-% Verificar que todos los elems de una lista sean iguales a X
-todosIguales(_, []).
-todosIguales(X, [X|T]) :-
-	todosIguales(X, T).
+pintar_celda(_, _).
 
 % Predicado dado combinarCelda/3
 combinarCelda(A, B, _) :- var(A), var(B).
@@ -152,41 +139,27 @@ resolverDeduciendo(NN) :- completar("Ejercicio 9").
 solucionUnica(NN) :- 
 	findall(_, resolverNaive(NN), [_]).
 
-% ====== Funciones Auxiliares ======
-asignar_valor(X, X).						% Asigna un valor X en el lugar de otro ya existente
+% =====================================================
+% =============== Funciones Auxiliares ================
+% =====================================================
 
-asignar_lista(C, Fila) :- length(Fila, C).	% Asigna los valores de C a una lista
-
-matriz(F, C, M) :-
-    length(M, F),							% Crea una lista M de longitud F (con variables sin asignar)
-    maplist(asignar_lista(C), M).			% Asigna los C valores a cada elemento de M
+asignar_lista(C, Fila) :- length(Fila, C).
 
 llenar_celda(X) :- member(X, [x, o]). 		% Asigna a X el valor x (pintada) u o (sin pintar) para una celda
 
-% Llenar N celdas con x/o recursivamente
-llenar_n_celdas(0, []) :- !.				% CB, 0 celdas = lista vacía
-llenar_n_celdas(N, [Celda | Resto]) :-
-	N > 0,									% N debe ser positivo
-	N1 is N - 1,							% Decrementa N en 1
-	llenar_celda(Celda),					% Asigna x u o a Celda
-	llenar_n_celdas(N1, Resto).				% Recursión con N-1
+extraerBloques([], []).						% CB: Sin celdas = Sin bloques
+extraerBloques([o|T], Bloques) :-			% Si encontramos 'o':
+	extraerBloques(T, Bloques).				% Sino, ignora 'o' y sigue
+extraerBloques([x|T], [Largo | Bloques]) :-	% Si encuentra 'x'
+	buscarRachasDeX(T, 1, Largo, Resto),	% Cuenta cuantas 'x' hay
+	extraerBloques(Resto, Bloques).			% Continua con el resto
 
-extraerBloques(Celdas, Bloques) :-
-	extraerBloquesBis(Celdas, Bloques).
-
-extraerBloquesBis([], []).				% CB: Sin celdas = Sin bloques
-extraerBloquesBis([o|T], Bloques) :-	% Si encontramos 'o':
-	extraerBloquesBis(T, Bloques).		% Sino, ignora 'o' y sigue
-extraerBloquesBis([x|T], [Largo | Bloques]) :-	% Si encuentra 'x'
-	buscarRachasDeX(T, 1, Largo, Resto),		% Cuenta cuantas 'x' hay
-	extraerBloquesBis(Resto, Bloques).		% Continua con el resto
- 
 % Cuenta x consecutivas
-buscarRachasDeX([x|T], Contador, N, Resto) :-	% Si hay 'x'
-	C1 is Contador + 1,	% Cuenta el resto recursivamente
+buscarRachasDeX([x|T], Contador, N, Resto) :-			% Si hay 'x'
+	C1 is Contador + 1,									% Cuenta el resto recursivamente
 	buscarRachasDeX(T, C1, N, Resto).
 buscarRachasDeX(Resto, Contador, Contador, Resto) :-	% Corta en 'o' -> Largo = 0
-	(Resto = []; Resto = [o|_]).					% Corta al final -> Largo = 0
+	(Resto = []; Resto = [o|_]).						% Corta al final -> Largo = 0
 
 % Valida que se cumpla la restriccion dada en cada bloque obtenido
 validar_restriccion(Restricciones, Celdas) :-
