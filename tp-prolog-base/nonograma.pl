@@ -1,5 +1,3 @@
-% Ejercicio 1
-
 /* 	Usando el ejemplo del enunciado del TP, 
 	el predicado aplicado paso a paso queda:
 	
@@ -19,28 +17,28 @@
 		M = [[_A, x, _B], [_, _, _]],
 		F1 = [_A, x, _B].
 */
+
 % Ejercicio 1
 matriz(F, C, M) :-
-    length(M, F),							% Crea una lista M de longitud F (con variables sin asignar)
-    maplist(asignar_lista(C), M).				% Asigna los C valores a cada elemento de M
-											% Equivalente a llenar con C elementos del tipo "_"
-											% cada fila de M 
+    length(M, F),					% Crea una lista M de longitud F (con variables sin asignar)
+    maplist(asignar_lista(C), M).	% Asigna los C valores a cada elemento de M
+									% Equivalente a llenar con C elementos del tipo "_" cada fila de M
+
 % Ejercicio 2
-replicar(X, N, L) :-
-	length(L, N),					% Crea lista L de N variables
-	maplist(=(X), L).				% =(X) unifica cada elemento de L con X
-									% Es un predicado built-in que funciona: =(X, A) → A = X
+replicar(X, N, L) :- length(L, N), maplist(=(X), L).				
+% Crea lista L de N variables
+% =(X) unifica cada elemento de L con X
+% Es un predicado built-in que funciona: =(X, A) → A = X
+
 % Ejercicio 3
-transponer(M, MT) :- 
-	M = [_ | _],
-	M = [Fila | _],
-	length(Fila, NumCols),
-	findall(
-		Columna,
-		(between(1, NumCols, C),
-		maplist(nth1(C), M, Columna)),
-		MT
-	).
+%! transponer(+M, -MT)
+transponer([], []).
+transponer([[]|_], []).
+transponer(M, [Columna|RestoColumnas]) :-
+	maplist(primera_columna, M, Columna, Resto),
+	transponer(Resto, RestoColumnas).
+
+primera_columna([X|Xs], X, Xs).		% Extrae el primer elemento de cada fila
 
 % Predicado dado armarNono/3
 armarNono(RF, RC, nono(M, RS)) :-
@@ -60,48 +58,34 @@ zipR([R|RT], [L|LT], [r(R,L)|T]) :- zipR(RT, LT, T).
 % Busca unificar Celdas con todas las posibles soluciones
 pintadasValidas(r(Restricciones, Celdas)) :- 
 	maplist(llenar_celda, Celdas),					% Llena (pinta) cada celda
-	validar_restriccion(Restricciones, Celdas).
+	extraerBloques(Celdas, Bloques),
+	Bloques = Restricciones.
 
 % Ejercicio 5
 % El nonograma (NN) tiene la estructura:
 % 	M = matriz de celdas
 % 	RS = lista de restricciones (filas + columnas)
 resolverNaive(nono(M, RS)) :-
-    length(M, F),
-    length(RSFilas, F),
-    append(RSFilas, RSColumnas, RS),
-    % Resuelve filas de forma determinística
-    maplist(resolver_restriccion_det, RSFilas),
-    transponer(M, Mt),
-    maplist(resolver_restriccion_det, RSColumnas).
+    maplist(maplist(llenar_celda), M),		% Llena todas las celdas de la matriz
+    maplist(validar_restriccion_r, RS).		% Verifica que todas las restricciones se cumplan
 
-% Resuelve una restricción de forma determinística (sin backtracking)
-resolver_restriccion_det(r(Restricciones, Celdas)) :-
-    length(Celdas, N),
-    findall(
-		Sol,
-        (maplist(llenar_celda, Sol),
-        validar_restriccion(Restricciones, Sol)),
-        [Primera|_]
-	),  % Extrae solo la primer solución
-    Celdas = Primera.
+% Convierte r(Restricciones, Celdas) a validar_restriccion/2
+validar_restriccion_r(r(Restricciones, Celdas)) :- validar_restriccion(Restricciones, Celdas).
 
 % Ejercicio 6
+% El operador -> es un condicional if-then-else
+% Es la forma que Prolog tiene de hacer decisiones
+% Sintaxis: (Condición -> AccionIfTrue ; AccionIfFalse)
 pintarObligatorias(r(Restricciones, Celdas)) :- 
 	length(Celdas, N),
 	findall(Combinacion,
-		(maplist(llenar_celda, Combinacion),
-		validar_restriccion(Restricciones, Combinacion)),
+		(length(Combinacion, N),
+		 maplist(llenar_celda, Combinacion),
+		 validar_restriccion(Restricciones, Combinacion)),
 		Soluciones),
-	(Soluciones = [] -> maplist(=(o), Celdas);
+	Soluciones \= [],  % Debe haber al menos una solución
 	transponer(Soluciones, Columnas),
-	maplist(pintar_celda, Celdas, Columnas)
-	).
-
-pintar_celda(Celda, Valores) :-
-	msort(Valores, [Valor]), !,
-	Celda = Valor.
-pintar_celda(_, _).
+	maplist(pintar_celda_obligatoria, Celdas, Columnas).
 
 % Predicado dado combinarCelda/3
 combinarCelda(A, B, _) :- var(A), var(B).
@@ -111,8 +95,7 @@ combinarCelda(A, B, A) :- nonvar(A), nonvar(B), A = B.
 combinarCelda(A, B, _) :- nonvar(A), nonvar(B), A \== B.
 
 % Ejercicio 7
-deducir1Pasada(nono(_, RS)) :- 
-	maplist(pintarObligatorias, RS).
+deducir1Pasada(nono(_, RS)) :- maplist(pintarObligatorias, RS).
 
 % Predicado dado
 cantidadVariablesLibres(T, N) :- term_variables(T, LV), length(LV, N).
@@ -130,14 +113,13 @@ deducirVariasPasadasCont(_, A, A). % Si VI = VF entonces no hubo más cambios y 
 deducirVariasPasadasCont(NN, A, B) :- A =\= B, deducirVariasPasadas(NN).
 
 % Ejercicio 8
-restriccionConMenosLibres(_, _) :- completar("Ejercicio 8").
+restriccionConMenosLibres(nono(_, RS), R) :- completar("Ejercicio 8").
 
 % Ejercicio 9
 resolverDeduciendo(NN) :- completar("Ejercicio 9").
 
 % Ejercicio 10
-solucionUnica(NN) :- 
-	findall(_, resolverNaive(NN), [_]).
+solucionUnica(NN) :- findall(_, resolverNaive(NN), [_]).
 
 % =====================================================
 % =============== Funciones Auxiliares ================
@@ -147,7 +129,7 @@ asignar_lista(C, Fila) :- length(Fila, C).
 
 llenar_celda(X) :- member(X, [x, o]). 		% Asigna a X el valor x (pintada) u o (sin pintar) para una celda
 
-extraerBloques([], []).						% CB: Sin celdas = Sin bloques
+extraerBloques([], []).						% Caso Base: Sin celdas = Sin bloques
 extraerBloques([o|T], Bloques) :-			% Si encontramos 'o':
 	extraerBloques(T, Bloques).				% Sino, ignora 'o' y sigue
 extraerBloques([x|T], [Largo | Bloques]) :-	% Si encuentra 'x'
@@ -166,7 +148,11 @@ validar_restriccion(Restricciones, Celdas) :-
 	extraerBloques(Celdas, Bloques),		% Extrae bloques de Celdas
 	Bloques = Restricciones.				% Los bloques deben ser iguales a Restricciones
 
-% Para eliminar duplicados, usamos el predicado de Prolog "sort".
+% Pinta una celda solo si todos los valores en la columna son iguales
+pintar_celda_obligatoria(Celda, Valores) :-
+	msort(Valores, [Valor]), !,
+	Celda = Valor.
+pintar_celda_obligatoria(_, _).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                              %
@@ -246,6 +232,3 @@ mostrarFila(Fila) :-
 mostrarCelda(C) :- nonvar(C), C = x, write('██').
 mostrarCelda(C) :- nonvar(C), C = o, write('░░').
 mostrarCelda(C) :- var(C), write('¿?').
-
-
-tam(N, (F, C)) :- nn(N, nono(M, _)), matriz(F, C, M).
